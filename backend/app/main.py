@@ -445,6 +445,18 @@ async def run_simulation(request: SimulationRequest, db: Session = Depends(get_d
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@app.post("/ablation")
+async def run_ablation(n_samples: int = 500):
+    """
+    Run a comprehensive ablation study across 12 failure scenarios
+    and 4 RCA configurations. Proves each component's incremental value.
+    """
+    from app.engines.ablation_runner import AblationRunner
+    runner = AblationRunner()
+    results = runner.run(n_samples=n_samples)
+    return results
+
+
 @app.get("/health")
 async def health_check():
     return {
