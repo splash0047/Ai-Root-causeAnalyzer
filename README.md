@@ -5,80 +5,138 @@ An industry-grade AI-powered Root Cause Analysis system for ML model monitoring.
 ## 🏗️ Architecture
 
 ```
-RCA/
-├── backend/          # FastAPI application
-│   ├── app/
-│   │   ├── main.py           # API endpoints
-│   │   ├── config.py         # Centralized settings
-│   │   ├── database.py       # SQLAlchemy ORM
-│   │   └── engines/
-│   │       ├── rca_engine.py         # Core RCA diagnostic engine
-│   │       ├── drift_detector.py     # KS-test & PSI drift detection
-│   │       ├── integrity_checker.py  # Data quality validation
-│   │       └── failure_simulator.py  # Controlled failure injection
-│   ├── requirements.txt
-│   └── .env.example
-├── model/            # Baseline model & training
-│   └── train_baseline.py
-├── infra/            # Infrastructure
-│   └── init.sql
-└── docker-compose.yml
+┌──────────────┐     ┌──────────────────────────────────────────────────┐
+│  React UI    │────▶│  FastAPI Backend (8 endpoints)                   │
+│  (Vite)      │     │  ├── /ingest      → Data ingestion + anomaly    │
+│  Port: 5173  │     │  ├── /rca         → Full RCA pipeline           │
+│              │     │  ├── /metrics     → Model performance metrics   │
+│  Dashboard   │     │  ├── /rca/history → Historical RCA results      │
+│  RCA History │     │  ├── /feedback    → Human feedback loop         │
+│  Simulator   │     │  ├── /simulate   → Controlled failure injection │
+│  Ablation    │     │  ├── /ablation   → Ablation study runner        │
+│              │     │  └── /health     → System health check          │
+└──────────────┘     └─────────┬────────────────┬──────────────────────┘
+                               │                │
+                    ┌──────────▼──────┐  ┌──────▼──────────┐
+                    │  RCA Engine     │  │  LLM Reasoner   │
+                    │  ├── SHAP       │  │  (Gemini/OpenAI)│
+                    │  ├── Counter-   │  └──────┬──────────┘
+                    │  │   factuals   │         │
+                    │  ├── Drift      │  ┌──────▼──────────┐
+                    │  ├── Integrity  │  │  Pinecone Vector│
+                    │  └── Multi-sig  │  │  Memory (RAG)   │
+                    └─────────────────┘  └─────────────────┘
 ```
 
-## 🚀 Key Features
+## ✨ Key Features
 
-- **Multi-Signal RCA Engine**: Combines drift detection, SHAP analysis, bounded counterfactual causality, and feature interaction testing
-- **Bounded Counterfactual Causality**: Reverts suspect features to training-baseline values to confirm causal links
-- **Feature Interaction Detection**: Top-k bounded pairwise interaction testing
-- **Adaptive Anomaly Scoring**: Flags high-anomaly predictions for priority RCA
-- **Active Feedback Loop**: User feedback adjusts diagnostic weights (bounded ±5% max delta)
-- **Controlled Failure Simulation**: 6 failure types (noise, drop, skew, interaction, concept drift, missing values)
-- **Tiered Execution Modes**: Lightweight vs Deep RCA for cost control
+### Backend (Python/FastAPI)
+- **6-Signal RCA Engine**: SHAP importance, counterfactual validation, drift detection, integrity checks, interaction testing, multi-signal aggregation
+- **Bounded Counterfactual Causality**: Validates causal claims by testing if reversing a feature drift restores predictions
+- **LLM Reasoning** (Phase 4): Gemini/OpenAI generates human-readable explanations and suggested fixes
+- **Pinecone Vector Memory** (Phase 4): Stores RCA cases as vectors for pattern matching across incidents
+- **Failure Simulator**: 6 failure injection types (noise, drop, skew, interaction, concept drift, missing values)
+- **Ablation Study** (Phase 6): Systematic validation across 12 scenarios × 4 configurations
+- **Confidence Scoring**: Multi-factor confidence with memory boost and uncertainty flagging
+- **Active Feedback Loop**: Human feedback adjusts RCA weight evolution over time
 
-## 🛠️ Setup
+### Frontend (React/Vite)
+- **Premium Dark UI**: Glassmorphism cards, gradient accents, Inter + JetBrains Mono typography
+- **Dashboard**: Real-time metrics (accuracy, F1, accuracy drop, anomaly count) with time window selector
+- **RCA History**: Filterable table with severity badges, confidence bars, feedback status
+- **Failure Simulator**: Interactive controls for all 6 failure types with inline RCA results
+- **RCA Detail**: Reasoning chain visualization, ranked features with causal badges, feedback buttons
+- **Ablation Study**: Accuracy progression bars, per-scenario hit/miss detail table
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.10+
-- Docker & Docker Compose
+- Python 3.13+ with pip
+- Node.js 18+ with npm
+- (Optional) PostgreSQL, Redis, Pinecone API key, Gemini API key
 
-### 1. Start Infrastructure
-```bash
-docker-compose up -d
-```
-
-### 2. Install Dependencies
+### Backend
 ```bash
 cd backend
+cp .env.example .env    # Add your API keys
 pip install -r requirements.txt
-```
-
-### 3. Train Baseline Model
-```bash
-cd model
-python train_baseline.py
-```
-
-### 4. Run the API Server
-```bash
-cd backend
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 5. Access API Docs
-Open [http://localhost:8000/docs](http://localhost:8000/docs)
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev             # Opens at http://localhost:5173
+```
 
-## 📡 API Endpoints
+### Docker (Full Stack)
+```bash
+docker-compose up --build
+```
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/ingest` | Ingest prediction data with anomaly scoring |
-| `POST` | `/rca` | Execute Root Cause Analysis |
-| `GET` | `/metrics` | Model performance metrics (rolling window) |
-| `GET` | `/rca/history` | Historical RCA results |
-| `POST` | `/feedback` | Submit feedback on RCA results |
-| `POST` | `/simulate` | Run controlled failure simulation |
-| `GET` | `/health` | System health check |
+## 📁 Project Structure
 
-## 📄 License
+```
+RCA/
+├── backend/
+│   ├── app/
+│   │   ├── main.py              # FastAPI app with 8 endpoints
+│   │   ├── config.py            # Settings from .env
+│   │   ├── database.py          # SQLAlchemy models (Postgres/SQLite)
+│   │   └── engines/
+│   │       ├── rca_engine.py       # Core 6-signal RCA analysis
+│   │       ├── drift_detector.py   # Statistical drift detection
+│   │       ├── integrity_checker.py # Data quality validation
+│   │       ├── failure_simulator.py # 6 failure injection types
+│   │       ├── llm_reasoner.py     # Gemini/OpenAI explanations
+│   │       ├── vector_memory.py    # Pinecone case memory
+│   │       └── ablation_runner.py  # Ablation study engine
+│   ├── requirements.txt
+│   └── .env.example
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx              # Shell with sidebar navigation
+│   │   ├── api.js               # Centralized API client
+│   │   ├── index.css            # Design system tokens
+│   │   ├── App.css              # Component styles
+│   │   └── components/
+│   │       ├── Dashboard.jsx       # Metrics + recent RCA
+│   │       ├── RCAHistory.jsx      # Filterable history table
+│   │       ├── Simulator.jsx       # Failure injection UI
+│   │       ├── RCADetail.jsx       # Reasoning chain + features
+│   │       └── Ablation.jsx        # Ablation study results
+│   └── package.json
+├── model/
+│   └── train_baseline.py       # XGBoost training script
+├── infra/
+│   └── init.sql                # PostgreSQL schema
+├── docker-compose.yml
+└── README.md
+```
+
+## 🔬 API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/ingest` | Ingest data batch with anomaly detection |
+| POST | `/rca` | Run full RCA analysis (lightweight/deep) |
+| GET | `/metrics` | Model performance metrics |
+| GET | `/rca/history` | Historical RCA results |
+| POST | `/feedback` | Submit human feedback on RCA |
+| POST | `/simulate` | Inject controlled failures |
+| POST | `/ablation` | Run ablation study |
+| GET | `/health` | System health check |
+
+## 📊 RCA Pipeline (6 Steps)
+
+1. **Integrity Check** → Missing values, range violations, type errors
+2. **Drift Detection** → KS test, PSI, concept drift
+3. **Vector Memory Search** → Find similar past cases in Pinecone
+4. **Multi-Signal RCA** → SHAP + counterfactuals + interactions + drift
+5. **LLM Reasoning** → Generate explanation + suggested fix
+6. **Case Storage** → Store in vector memory for future matching
+
+## 📝 License
 
 MIT
