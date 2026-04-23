@@ -7,7 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load .env file (prefer .env with real keys, fallback to .env.example)
-_backend_dir = Path(__file__).parent.parent
+_backend_dir = Path(__file__).resolve().parent.parent
 _env_path = _backend_dir / ".env"
 if not _env_path.exists():
     _env_path = _backend_dir / ".env.example"
@@ -50,7 +50,7 @@ class Settings:
     WEIGHT_MEMORY: float = 0.15
 
     # --- Model Paths ---
-    MODEL_DIR: Path = Path(__file__).parent.parent.parent / "model"
+    MODEL_DIR: Path = Path(__file__).resolve().parent.parent.parent / "model"
     BASELINE_MODEL_PATH: Path = MODEL_DIR / "baseline_model.joblib"
     BASELINE_DATA_PATH: Path = MODEL_DIR / "baseline_data.csv"
     TRAINING_STATS_PATH: Path = MODEL_DIR / "training_stats.json"

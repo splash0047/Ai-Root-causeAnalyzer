@@ -22,6 +22,7 @@ from app.engines.rca_engine import RCAEngine
 from app.engines.failure_simulator import FailureSimulator
 from app.engines.llm_reasoner import LLMReasoner
 from app.engines.vector_memory import VectorMemory
+from app.tracer import TracerMiddleware
 
 # ─── FastAPI App ───────────────────────────────────────────
 
@@ -38,6 +39,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(TracerMiddleware)
 
 # ─── Engine Initialization ─────────────────────────────────
 
@@ -67,8 +69,38 @@ vector_memory = VectorMemory(
 
 # Load model
 model = None
-if settings.BASELINE_MODEL_PATH.exists():
-    model = joblib.load(settings.BASELINE_MODEL_PATH)
+try:
+    _model_path = settings.BASELINE_MODEL_PATH
+    print(f"[MODEL] Looking for model at: {_model_path}")
+    print(f"[MODEL] Path exists: {_model_path.exists()}")
+    if _model_path.exists():
+        model = joblib.load(_model_path)
+        print(f"[MODEL] OK - Loaded successfully: {type(model).__name__}")
+    else:
+        print(f"[MODEL] WARN - File not found at {_model_path}")
+except Exception as e:
+    print(f"[MODEL] ERROR - Failed to load: {e}")
+
+
+# ─── Numpy-safe serialization helper ──────────────────────
+
+import math
+
+def _safe(obj):
+    """Recursively convert numpy types to Python native for JSON serialization, handling NaNs."""
+    if isinstance(obj, dict):
+        return {k: _safe(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [_safe(v) for v in obj]
+    elif isinstance(obj, (np.bool_,)):
+        return bool(obj)
+    elif isinstance(obj, (np.integer,)):
+        return int(obj)
+    elif isinstance(obj, (np.floating, float)):
+        return None if math.isnan(obj) else float(obj)
+    elif isinstance(obj, np.ndarray):
+        return [_safe(v) for v in obj.tolist()]
+    return obj
 
 
 # ─── Pydantic Schemas ─────────────────────────────────────
@@ -225,10 +257,15 @@ async def run_rca(request: RCARequest, db: Session = Depends(get_db)):
     )
     rca_result["llm_explanation"] = llm_output
 
+    # Convert numpy types to native Python for JSON serialization
+    rca_result = _safe(rca_result)
+    integrity_report = _safe(integrity_report)
+    drift_report = _safe(drift_report)
+
     # Store RCA result
     rca_log = RCALog(
         root_cause=rca_result["root_cause"],
-        confidence_score=rca_result["confidence_score"],
+        confidence_score=float(rca_result["confidence_score"]),
         severity=rca_result["severity"],
         ranked_features=rca_result["ranked_features"],
         explanation=llm_output.get("explanation", rca_result["root_cause_detail"]),
@@ -237,7 +274,7 @@ async def run_rca(request: RCARequest, db: Session = Depends(get_db)):
         rca_mode=rca_result["rca_mode"],
         rca_logic_version=rca_result["rca_logic_version"],
         model_version=rca_result["model_version"],
-        is_uncertain=rca_result["is_uncertain"],
+        is_uncertain=bool(rca_result["is_uncertain"]),
     )
     db.add(rca_log)
     db.commit()
@@ -439,7 +476,7 @@ async def run_simulation(request: SimulationRequest, db: Session = Depends(get_d
                 "overall_drift_severity": drift_report["overall_drift_severity"],
             }
 
-        return result
+        return _safe(result)
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
