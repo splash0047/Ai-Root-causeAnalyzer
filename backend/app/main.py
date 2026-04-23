@@ -20,6 +20,8 @@ from app.engines.integrity_checker import DataIntegrityChecker
 from app.engines.drift_detector import DriftDetector
 from app.engines.rca_engine import RCAEngine
 from app.engines.failure_simulator import FailureSimulator
+from app.engines.llm_reasoner import LLMReasoner
+from app.engines.vector_memory import VectorMemory
 
 # ─── FastAPI App ───────────────────────────────────────────
 
@@ -53,6 +55,14 @@ rca_engine = RCAEngine()
 failure_simulator = FailureSimulator(
     baseline_data_path=settings.BASELINE_DATA_PATH,
     training_stats_path=settings.TRAINING_STATS_PATH,
+)
+llm_reasoner = LLMReasoner(
+    gemini_api_key=settings.GEMINI_API_KEY,
+    openai_api_key=settings.OPENAI_API_KEY,
+)
+vector_memory = VectorMemory(
+    api_key=settings.PINECONE_API_KEY,
+    index_name=settings.PINECONE_INDEX_NAME,
 )
 
 # Load model
@@ -192,7 +202,11 @@ async def run_rca(request: RCARequest, db: Session = Depends(get_db)):
     # Step 2: Drift Detection
     drift_report = drift_detector.detect(df[available_cols], predictions, actuals)
 
-    # Step 3: RCA Analysis
+    # Step 3: Vector Memory Search (find similar past cases)
+    memory_result = vector_memory.search_similar(rca_result={}, drift_report=drift_report)
+    memory_match_score = memory_result.get("match_score", 0.0)
+
+    # Step 4: RCA Analysis (with memory boost)
     rca_result = rca_engine.analyze(
         live_data=df,
         drift_report=drift_report,
@@ -200,8 +214,16 @@ async def run_rca(request: RCARequest, db: Session = Depends(get_db)):
         predictions=predictions,
         actuals=actuals,
         mode=request.mode,
-        memory_match_score=0.0,  # Will be filled when Pinecone is integrated
+        memory_match_score=memory_match_score,
     )
+
+    # Step 5: LLM Reasoning (generate explanation & fix)
+    llm_output = llm_reasoner.generate_explanation(
+        rca_result=rca_result,
+        drift_report=drift_report,
+        integrity_report=integrity_report,
+    )
+    rca_result["llm_explanation"] = llm_output
 
     # Store RCA result
     rca_log = RCALog(
@@ -209,8 +231,8 @@ async def run_rca(request: RCARequest, db: Session = Depends(get_db)):
         confidence_score=rca_result["confidence_score"],
         severity=rca_result["severity"],
         ranked_features=rca_result["ranked_features"],
-        explanation=rca_result["root_cause_detail"],
-        suggested_fix="",  # Will be filled when LLM is integrated
+        explanation=llm_output.get("explanation", rca_result["root_cause_detail"]),
+        suggested_fix=llm_output.get("suggested_fix", ""),
         reasoning_chain=rca_result["reasoning_chain"],
         rca_mode=rca_result["rca_mode"],
         rca_logic_version=rca_result["rca_logic_version"],
@@ -221,11 +243,20 @@ async def run_rca(request: RCARequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(rca_log)
 
+    # Step 6: Store case in vector memory for future pattern matching
+    vector_memory.store_case(
+        rca_id=rca_log.id,
+        rca_result=rca_result,
+        drift_report=drift_report,
+    )
+
     return {
         "rca_id": rca_log.id,
         "result": rca_result,
         "integrity_report": integrity_report,
         "drift_report": drift_report,
+        "similar_cases": memory_result.get("similar_cases", []),
+        "llm_explanation": llm_output,
     }
 
 
@@ -421,4 +452,6 @@ async def health_check():
         "model_loaded": model is not None,
         "rca_logic_version": settings.RCA_LOGIC_VERSION,
         "model_version": settings.MODEL_VERSION,
+        "vector_memory": vector_memory.is_available,
+        "llm_provider": "gemini" if settings.GEMINI_API_KEY else ("openai" if settings.OPENAI_API_KEY else "none"),
     }
