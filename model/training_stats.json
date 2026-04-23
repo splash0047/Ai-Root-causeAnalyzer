@@ -1,0 +1,100 @@
+{
+  "feature_columns": [
+    "age",
+    "income",
+    "credit_score",
+    "loan_amount",
+    "employment_years",
+    "num_credit_lines",
+    "debt_to_income",
+    "has_mortgage",
+    "loan_purpose_encoded"
+  ],
+  "sample_count": 4000,
+  "default_rate": 0.1,
+  "accuracy": 0.906,
+  "f1_score": 0.2878787878787879,
+  "feature_stats": {
+    "age": {
+      "mean": 45.19325,
+      "std": 14.084903285526694,
+      "min": 21.0,
+      "max": 69.0,
+      "median": 45.0,
+      "q25": 33.0,
+      "q75": 57.0
+    },
+    "income": {
+      "mean": 54920.533,
+      "std": 29273.19918631309,
+      "min": 8176.0,
+      "max": 252255.0,
+      "median": 47737.5,
+      "q25": 34683.0,
+      "q75": 67978.5
+    },
+    "credit_score": {
+      "mean": 677.351,
+      "std": 79.41865731540949,
+      "min": 428.0,
+      "max": 850.0,
+      "median": 677.0,
+      "q25": 623.0,
+      "q75": 733.0
+    },
+    "loan_amount": {
+      "mean": 28507.581,
+      "std": 22944.803870911768,
+      "min": 1280.0,
+      "max": 309973.0,
+      "median": 22434.5,
+      "q25": 13679.75,
+      "q75": 36301.25
+    },
+    "employment_years": {
+      "mean": 4.932,
+      "std": 4.93400568534591,
+      "min": 0.0,
+      "max": 39.1,
+      "median": 3.5,
+      "q25": 1.4,
+      "q75": 6.7
+    },
+    "num_credit_lines": {
+      "mean": 3.99925,
+      "std": 1.9751518280086524,
+      "min": 0.0,
+      "max": 13.0,
+      "median": 4.0,
+      "q25": 3.0,
+      "q75": 5.0
+    },
+    "debt_to_income": {
+      "mean": 0.428056,
+      "std": 0.21648038318303986,
+      "min": 0.05,
+      "max": 0.8,
+      "median": 0.432,
+      "q25": 0.243,
+      "q75": 0.617
+    },
+    "has_mortgage": {
+      "mean": 0.3915,
+      "std": 0.4881468240503647,
+      "min": 0.0,
+      "max": 1.0,
+      "median": 0.0,
+      "q25": 0.0,
+      "q75": 1.0
+    },
+    "loan_purpose_encoded": {
+      "mean": 1.40425,
+      "std": 1.3452822691152584,
+      "min": 0.0,
+      "max": 4.0,
+      "median": 1.0,
+      "q25": 0.0,
+      "q75": 3.0
+    }
+  }
+}
