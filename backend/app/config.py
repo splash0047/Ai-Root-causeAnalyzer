@@ -6,9 +6,12 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env file
-env_path = Path(__file__).parent.parent / ".env.example"
-load_dotenv(dotenv_path=env_path if env_path.exists() else None)
+# Load .env file (prefer .env with real keys, fallback to .env.example)
+_backend_dir = Path(__file__).parent.parent
+_env_path = _backend_dir / ".env"
+if not _env_path.exists():
+    _env_path = _backend_dir / ".env.example"
+load_dotenv(dotenv_path=_env_path if _env_path.exists() else None)
 
 
 class Settings:
