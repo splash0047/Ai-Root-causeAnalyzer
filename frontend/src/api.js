@@ -61,6 +61,16 @@ export const api = {
       }),
     }),
 
+  simulateFix: (rcaId, fixType, targetFeature) =>
+    request('/simulate/fix', {
+      method: 'POST',
+      body: JSON.stringify({ rca_id: rcaId, fix_type: fixType, target_feature: targetFeature }),
+    }),
+
+  runBenchmarkDemo: () => request('/benchmark/demo', { method: 'POST' }),
+
+  getEvalMetrics: () => request('/eval/metrics/eval'),
+
   // Ingest
   ingestData: (records, actuals = null, batchId = null) =>
     request('/ingest', {

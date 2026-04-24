@@ -21,6 +21,11 @@ export default function Simulator({ onViewRCA }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [benchmarkLoading, setBenchmarkLoading] = useState(false);
+  const [benchmarkResult, setBenchmarkResult] = useState(null);
+  const [fixLoading, setFixLoading] = useState(false);
+  const [fixResult, setFixResult] = useState(null);
+  const [fixType, setFixType] = useState('imputation');
 
   async function runSim() {
     setLoading(true); setError(null); setResult(null);
@@ -31,12 +36,54 @@ export default function Simulator({ onViewRCA }) {
     setLoading(false);
   }
 
+  async function runDemo() {
+    setBenchmarkLoading(true); setError(null); setResult(null); setBenchmarkResult(null);
+    try {
+      const data = await api.runBenchmarkDemo();
+      setBenchmarkResult(data.demo_results);
+    } catch (e) { setError(e.message); }
+    setBenchmarkLoading(false);
+  }
+
+  async function runFixSimulation(rcaId) {
+    setFixLoading(true);
+    try {
+      const data = await api.simulateFix(rcaId, fixType, result?.target_feature || 'all');
+      setFixResult(data);
+    } catch (e) { setError(e.message); }
+    setFixLoading(false);
+  }
+
   return (
     <div className="animate-in">
-      <div className="page-header">
-        <h1 className="page-title">Failure Simulator</h1>
-        <p className="page-subtitle">Inject controlled failures to validate the RCA engine</p>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 className="page-title">Failure Simulator</h1>
+          <p className="page-subtitle">Inject controlled failures to validate the RCA engine</p>
+        </div>
+        <button className="btn btn-primary" onClick={runDemo} disabled={benchmarkLoading} style={{ background: 'var(--accent-purple)' }}>
+          {benchmarkLoading ? <><div className="spinner"></div> Running Demo...</> : '⚡ Run 1-Click Benchmark Demo'}
+        </button>
       </div>
+      
+      {benchmarkResult && (
+        <div className="glass-card" style={{ padding: 24, marginBottom: 24 }}>
+          <h3 style={{ marginBottom: 16, fontWeight: 700 }}>🏆 Benchmark Demo Results</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+            {benchmarkResult.map((res, i) => (
+              <div key={i} style={{ background: 'rgba(255,255,255,0.05)', padding: 16, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ fontWeight: 600, color: 'var(--accent-cyan)', marginBottom: 8 }}>{res.scenario}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Detected: {res.root_cause_detected}</div>
+                <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                  <span>Conf: {(res.confidence * 100).toFixed(0)}%</span>
+                  <span>{res.latency_ms}ms</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="sim-grid">
         <div className="glass-card sim-form">
           <h3 style={{marginBottom:20,fontSize:'1rem',fontWeight:700}}>⚙️ Config</h3>
@@ -115,6 +162,42 @@ export default function Simulator({ onViewRCA }) {
                       ))}
                     </div>
                   )}
+                  
+                  {/* Simulate Fix Section */}
+                  <div style={{marginTop: 24, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)'}}>
+                    <h4 style={{marginBottom: 12, fontWeight: 600}}>🔧 Simulate Fix Impact</h4>
+                    <div style={{display: 'flex', gap: 12, alignItems: 'center'}}>
+                      <select className="form-select" value={fixType} onChange={e => setFixType(e.target.value)} style={{flex: 1}}>
+                        <option value="imputation">Local Fix: Data Imputation</option>
+                        <option value="drop_feature">Local Fix: Drop Feature</option>
+                        <option value="retrain">Global Fix: Model Retraining</option>
+                      </select>
+                      <button className="btn btn-secondary" onClick={() => runFixSimulation(result.rca_result.rca_id)} disabled={fixLoading}>
+                        {fixLoading ? 'Simulating...' : 'Simulate'}
+                      </button>
+                    </div>
+                    
+                    {fixResult && (
+                      <div style={{marginTop: 16, padding: 16, background: 'rgba(16, 185, 129, 0.1)', borderRadius: 8, border: '1px solid rgba(16, 185, 129, 0.2)'}}>
+                        <div style={{color: 'var(--accent-emerald)', fontWeight: 600, marginBottom: 8}}>{fixResult.recovery_message}</div>
+                        <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                          <div style={{flex: 1}}>
+                            <div style={{fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: 4}}>Before Fix (Accuracy)</div>
+                            <div style={{height: 8, background: 'rgba(255,255,255,0.1)', borderRadius: 4, overflow: 'hidden'}}>
+                              <div style={{height: '100%', width: `${(result.rca_result?.accuracy_drop ? (fixResult.baseline_accuracy - result.rca_result.accuracy_drop) : fixResult.baseline_accuracy * 0.75) * 100}%`, background: 'var(--accent-rose)'}}></div>
+                            </div>
+                          </div>
+                          <div style={{fontSize: '1.2rem'}}>→</div>
+                          <div style={{flex: 1}}>
+                            <div style={{fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: 4}}>After Fix (Estimated)</div>
+                            <div style={{height: 8, background: 'rgba(255,255,255,0.1)', borderRadius: 4, overflow: 'hidden'}}>
+                              <div style={{height: '100%', width: `${(fixResult.simulated_accuracy || fixResult.simulated_accuracy_bounds?.[0] || 0.9) * 100}%`, background: 'var(--accent-emerald)'}}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
