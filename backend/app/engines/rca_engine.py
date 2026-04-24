@@ -16,6 +16,8 @@ from itertools import combinations
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 import json
+import time
+import time
 
 from app.config import settings
 
@@ -78,9 +80,12 @@ class RCAEngine:
         """
         reasoning_chain = []
         ranked_causes = []
+        latency_breakdown = {}
 
         # ─── Step 1: Integrity Signal ──────────────────────
+        t0 = time.perf_counter()
         integrity_signal = self._assess_integrity(integrity_report)
+        latency_breakdown["Integrity"] = round((time.perf_counter() - t0) * 1000, 2)
         reasoning_chain.append({
             "step": "Data Integrity Check",
             "result": integrity_signal["summary"],
@@ -88,7 +93,9 @@ class RCAEngine:
         })
 
         # ─── Step 2: Drift Signal ──────────────────────────
+        t0 = time.perf_counter()
         drift_signal = self._assess_drift(drift_report)
+        latency_breakdown["Drift"] = round((time.perf_counter() - t0) * 1000, 2)
         reasoning_chain.append({
             "step": "Drift Detection",
             "result": drift_signal["summary"],
@@ -97,7 +104,9 @@ class RCAEngine:
         })
 
         # ─── Step 3: Performance Signal ────────────────────
+        t0 = time.perf_counter()
         perf_signal = self._assess_performance(predictions, actuals)
+        latency_breakdown["Performance"] = round((time.perf_counter() - t0) * 1000, 2)
         reasoning_chain.append({
             "step": "Performance Assessment",
             "result": perf_signal["summary"],
@@ -105,6 +114,7 @@ class RCAEngine:
         })
 
         # ─── Step 4: SHAP Analysis (Deep mode only) ───────
+        t0 = time.perf_counter()
         shap_signal = {"score": 0, "top_features": [], "summary": "Skipped (lightweight mode)"}
         if mode == "deep" and self.model is not None:
             shap_signal = self._analyze_shap(live_data)
@@ -114,8 +124,10 @@ class RCAEngine:
                 "score": shap_signal["score"],
                 "top_features": shap_signal["top_features"],
             })
+        latency_breakdown["SHAP"] = round((time.perf_counter() - t0) * 1000, 2)
 
         # ─── Step 5: Counterfactual Causality (Deep mode) ──
+        t0 = time.perf_counter()
         counterfactual_signal = {"validated_causes": [], "summary": "Skipped (lightweight mode)"}
         if mode == "deep" and self.model is not None:
             suspect_features = self._get_suspect_features(drift_signal, shap_signal)
@@ -125,8 +137,10 @@ class RCAEngine:
                 "result": counterfactual_signal["summary"],
                 "validated_causes": counterfactual_signal["validated_causes"],
             })
+        latency_breakdown["Counterfactual"] = round((time.perf_counter() - t0) * 1000, 2)
 
         # ─── Step 6: Feature Interaction Testing (Deep) ────
+        t0 = time.perf_counter()
         interaction_signal = {"interactions": [], "summary": "Skipped (lightweight mode)"}
         if mode == "deep" and self.model is not None:
             interaction_signal = self._test_interactions(live_data, predictions, shap_signal)
@@ -135,15 +149,18 @@ class RCAEngine:
                 "result": interaction_signal["summary"],
                 "interactions": interaction_signal["interactions"],
             })
+        latency_breakdown["Interaction"] = round((time.perf_counter() - t0) * 1000, 2)
 
         # ─── Step 7: Multi-Signal Diagnosis ────────────────
+        t0 = time.perf_counter()
         diagnosis = self._diagnose(
             integrity_signal, drift_signal, perf_signal,
             shap_signal, counterfactual_signal, interaction_signal
         )
+        latency_breakdown["Diagnosis"] = round((time.perf_counter() - t0) * 1000, 2)
 
         # ─── Step 8: Confidence Scoring ────────────────────
-        confidence = self._calculate_confidence(
+        confidence, confidence_components = self._calculate_confidence(
             drift_signal, perf_signal, shap_signal, memory_match_score
         )
 
@@ -162,10 +179,12 @@ class RCAEngine:
             "root_cause": diagnosis["root_cause"],
             "root_cause_detail": diagnosis["detail"],
             "confidence_score": round(confidence, 4),
+            "confidence_components": confidence_components,
             "severity": severity,
             "is_uncertain": is_uncertain,
             "ranked_features": ranked_causes,
             "reasoning_chain": reasoning_chain,
+            "latency_breakdown": latency_breakdown,
             "rca_mode": mode,
             "rca_logic_version": settings.RCA_LOGIC_VERSION,
             "model_version": settings.MODEL_VERSION,
@@ -425,7 +444,7 @@ class RCAEngine:
                 "detail": "All signals within normal parameters.",
             }
 
-    def _calculate_confidence(self, drift, perf, shap_sig, memory_boost: float) -> float:
+    def _calculate_confidence(self, drift, perf, shap_sig, memory_boost: float) -> tuple:
         """
         Normalized confidence score with explicit mathematical defensibility.
         All components are min-max normalized to [0,1] before weighted aggregation.
@@ -435,13 +454,15 @@ class RCAEngine:
         shap_norm = self._normalize(shap_sig["score"], 0, 2)
         mem_norm = min(1.0, memory_boost)
 
-        confidence = (
-            self.weights["drift"] * drift_norm
-            + self.weights["correlation"] * corr_norm
-            + self.weights["shap"] * shap_norm
-            + self.weights["memory"] * mem_norm
-        )
-        return min(1.0, max(0.0, confidence))
+        components = {
+            "drift_signal": round(self.weights["drift"] * drift_norm, 4),
+            "correlation": round(self.weights["correlation"] * corr_norm, 4),
+            "shap_validation": round(self.weights["shap"] * shap_norm, 4),
+            "memory_match": round(self.weights["memory"] * mem_norm, 4)
+        }
+        
+        confidence = sum(components.values())
+        return min(1.0, max(0.0, confidence)), components
 
     def _normalize(self, value: float, low: float, high: float) -> float:
         """Min-max normalize a value to [0, 1]."""
@@ -449,15 +470,26 @@ class RCAEngine:
             return 0.0
         return max(0.0, min(1.0, (value - low) / (high - low)))
 
-    def _classify_severity(self, perf: Dict, drift: Dict) -> str:
+    def _classify_severity(self, perf: Dict, drift: Dict) -> Dict[str, Any]:
         """Dynamic severity classification."""
         acc_drop = perf.get("accuracy_drop", 0)
-        if acc_drop > settings.SEVERITY_HIGH_THRESHOLD:
-            return "high"
-        elif acc_drop > settings.SEVERITY_MEDIUM_THRESHOLD:
-            return "medium"
+        
+        # Affected ratio calculation
+        drifted_features = len(drift.get("drifted_features", []))
+        total_features = max(len(self.feature_cols) if self.feature_cols else 1, drifted_features)
+        affected_ratio = drifted_features / total_features if total_features > 0 else 0
+        business_weight = 0.5 # Default business importance
+
+        score = (0.5 * acc_drop) + (0.3 * affected_ratio) + (0.2 * business_weight)
+        
+        if acc_drop > settings.SEVERITY_HIGH_THRESHOLD or score > 0.4:
+            level = "high"
+        elif acc_drop > settings.SEVERITY_MEDIUM_THRESHOLD or score > 0.2:
+            level = "medium"
         else:
-            return "low"
+            level = "low"
+            
+        return {"level": level, "score": round(score, 4)}
 
     def _build_ranked_causes(self, drift, shap_sig, counterfactual, interaction) -> List[Dict]:
         """Build ranked list of root causes sorted by impact."""

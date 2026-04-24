@@ -29,11 +29,35 @@ export default function RCADetail({ data, onBack }) {
         <span className={`badge badge-${data.severity}`} style={{marginLeft:'auto'}}>{data.severity}</span>
       </div>
 
-      {/* Root Cause Summary */}
-      <div className="glass-card" style={{padding:24,marginBottom:24}}>
-        <div style={{fontWeight:800,fontSize:'1.1rem',marginBottom:8}}>{data.root_cause}</div>
-        <div style={{fontSize:'0.9rem',color:'var(--text-secondary)',lineHeight:1.8}}>{data.explanation}</div>
-        <div style={{display:'flex',gap:16,marginTop:16,flexWrap:'wrap'}}>
+      {/* Top Insights Summary */}
+      <div className="glass-card" style={{padding:24,marginBottom:24, borderLeft: '4px solid var(--accent-cyan)'}}>
+        <h3 style={{marginBottom: 16, color: 'var(--accent-cyan)'}}>✨ Top Insights</h3>
+        <ul style={{listStyleType: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px'}}>
+          <li style={{display: 'flex', alignItems: 'flex-start', gap: '12px'}}>
+            <span style={{fontSize: '1.2rem'}}>🔴</span>
+            <div>
+              <strong style={{display: 'block', color: 'var(--text-primary)'}}>Main Cause</strong>
+              <span style={{color: 'var(--text-secondary)'}}>{data.root_cause}</span>
+            </div>
+          </li>
+          {features.length > 0 && (
+          <li style={{display: 'flex', alignItems: 'flex-start', gap: '12px'}}>
+            <span style={{fontSize: '1.2rem'}}>👥</span>
+            <div>
+              <strong style={{display: 'block', color: 'var(--text-primary)'}}>Top Affected Feature</strong>
+              <span style={{color: 'var(--text-secondary)'}}>{features[0].feature}</span>
+            </div>
+          </li>
+          )}
+          <li style={{display: 'flex', alignItems: 'flex-start', gap: '12px'}}>
+            <span style={{fontSize: '1.2rem'}}>🔧</span>
+            <div>
+              <strong style={{display: 'block', color: 'var(--text-primary)'}}>Suggested Fix</strong>
+              <span style={{color: 'var(--text-secondary)'}}>{data.suggested_fix || data.explanation || "No fix suggested"}</span>
+            </div>
+          </li>
+        </ul>
+        <div style={{display:'flex',gap:16,marginTop:20,flexWrap:'wrap', paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.1)'}}>
           <span style={{fontFamily:'var(--font-mono)',fontSize:'0.85rem',color:'var(--accent-cyan)'}}>
             Confidence: {(data.confidence_score*100).toFixed(1)}%
           </span>
@@ -41,6 +65,58 @@ export default function RCADetail({ data, onBack }) {
           {data.is_uncertain && <span className="badge badge-medium">⚠ Uncertain</span>}
         </div>
       </div>
+
+      {/* Confidence Breakdown */}
+      {data.confidence_components && (
+        <div className="glass-card" style={{padding:24,marginBottom:24}}>
+          <h3 style={{marginBottom: 16}}>🎯 Confidence Breakdown</h3>
+          <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+            {Object.entries(data.confidence_components).map(([key, value]) => (
+              <div key={key}>
+                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px', color: 'var(--text-secondary)'}}>
+                  <span>{key.replace('_', ' ').toUpperCase()}</span>
+                  <span>{(value * 100).toFixed(1)}% weight</span>
+                </div>
+                <div style={{width: '100%', height: '6px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden'}}>
+                  <div style={{width: `${value * 100}%`, height: '100%', backgroundColor: 'var(--accent-cyan)', borderRadius: '3px'}}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Latency Breakdown */}
+      {data.latency_breakdown && (
+        <div className="glass-card" style={{padding:24,marginBottom:24}}>
+          <h3 style={{marginBottom: 16}}>⏱️ Latency Breakdown</h3>
+          <div style={{display: 'flex', gap: '4px', width: '100%', height: '24px', borderRadius: '4px', overflow: 'hidden', marginBottom: '16px'}}>
+            {Object.entries(data.latency_breakdown).map(([stage, time], i) => {
+              const total = Object.values(data.latency_breakdown).reduce((a, b) => a + b, 0);
+              const percentage = (time / total) * 100;
+              const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1', '#14b8a6'];
+              return (
+                <div 
+                  key={stage} 
+                  style={{width: `${percentage}%`, height: '100%', backgroundColor: colors[i % colors.length]}}
+                  title={`${stage}: ${time}ms`}
+                />
+              );
+            })}
+          </div>
+          <div style={{display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '0.8rem', color: 'var(--text-secondary)'}}>
+            {Object.entries(data.latency_breakdown).map(([stage, time], i) => {
+              const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1', '#14b8a6'];
+              return (
+                <div key={stage} style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
+                  <div style={{width: '8px', height: '8px', borderRadius: '50%', backgroundColor: colors[i % colors.length]}}></div>
+                  <span>{stage}: <strong>{time}ms</strong></span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="detail-grid">
         {/* Reasoning Chain */}

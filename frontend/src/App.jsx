@@ -7,6 +7,7 @@ import RCAHistory from './components/RCAHistory';
 import Simulator from './components/Simulator';
 import RCADetail from './components/RCADetail';
 import Ablation from './components/Ablation';
+import EvaluationDashboard from './components/EvaluationDashboard';
 
 export default function App() {
   const [tab, setTab] = useState('dashboard');
@@ -47,6 +48,9 @@ export default function App() {
           <button className={`nav-item ${tab === 'ablation' ? 'active' : ''}`} onClick={() => setTab('ablation')}>
             <span className="nav-icon">🔬</span> Ablation Study
           </button>
+          <button className={`nav-item ${tab === 'evaluation' ? 'active' : ''}`} onClick={() => setTab('evaluation')}>
+            <span className="nav-icon">📈</span> Evaluation
+          </button>
         </nav>
 
         <div className="sidebar-footer">
@@ -64,6 +68,7 @@ export default function App() {
         {tab === 'history' && <RCAHistory onViewDetail={showRCADetail} />}
         {tab === 'simulator' && <Simulator onViewRCA={showRCADetail} />}
         {tab === 'ablation' && <Ablation />}
+        {tab === 'evaluation' && <EvaluationDashboard />}
         {tab === 'rca-detail' && rcaDetail && (
           <RCADetail data={rcaDetail} onBack={() => setTab('history')} />
         )}
