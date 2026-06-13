@@ -165,7 +165,8 @@ class RCAEngine:
         )
 
         # ─── Step 9: Severity Classification ───────────────
-        severity = self._classify_severity(perf_signal, drift_signal)
+        severity_info = self._classify_severity(perf_signal, drift_signal)
+        severity = severity_info["level"]
 
         # ─── Step 10: Uncertainty Check ────────────────────
         is_uncertain = confidence < settings.RCA_CONFIDENCE_THRESHOLD
@@ -181,6 +182,7 @@ class RCAEngine:
             "confidence_score": round(confidence, 4),
             "confidence_components": confidence_components,
             "severity": severity,
+            "severity_score": severity_info["score"],
             "is_uncertain": is_uncertain,
             "ranked_features": ranked_causes,
             "reasoning_chain": reasoning_chain,
