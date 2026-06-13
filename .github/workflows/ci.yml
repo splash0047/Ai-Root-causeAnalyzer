@@ -24,6 +24,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest httpx
+
+    - name: Train baseline model
+      run: |
+        python model/train_baseline.py
         
     - name: Run Pytest
       working-directory: ./backend
