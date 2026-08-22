@@ -44,34 +44,34 @@ export default function Dashboard({ onViewRCA }) {
 
       {/* ── Metrics Cards ── */}
       <div className="metrics-grid">
-        <div className="glass-card stat-card blue">
+        <div className="cyber-card stat-card accent-blue">
           <div className="stat-label">Accuracy</div>
           <div className="stat-value">{metrics?.accuracy ? `${(metrics.accuracy * 100).toFixed(1)}%` : '—'}</div>
-          <div style={{ marginTop: 8, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          <div style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             Baseline: {metrics?.baseline_accuracy ? `${(metrics.baseline_accuracy * 100).toFixed(1)}%` : '—'}
           </div>
         </div>
 
-        <div className="glass-card stat-card green">
+        <div className="cyber-card stat-card accent-green">
           <div className="stat-label">F1 Score</div>
           <div className="stat-value green">{metrics?.f1_score?.toFixed(4) || '—'}</div>
-          <div style={{ marginTop: 8, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          <div style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             {metrics?.total_predictions || 0} predictions
           </div>
         </div>
 
-        <div className="glass-card stat-card amber">
+        <div className="cyber-card stat-card accent-amber">
           <div className="stat-label">Accuracy Drop</div>
           <div className="stat-value amber">{metrics?.accuracy_drop ? `${(metrics.accuracy_drop * 100).toFixed(1)}%` : '0%'}</div>
-          <div style={{ marginTop: 8, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          <div style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             vs training baseline
           </div>
         </div>
 
-        <div className="glass-card stat-card purple">
+        <div className="cyber-card stat-card accent-purple">
           <div className="stat-label">High Anomalies</div>
           <div className="stat-value">{metrics?.high_anomaly_count ?? 0}</div>
-          <div style={{ marginTop: 8, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          <div style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             Avg score: {metrics?.avg_anomaly_score?.toFixed(4) || '—'}
           </div>
         </div>
@@ -92,8 +92,8 @@ export default function Dashboard({ onViewRCA }) {
       </div>
 
       {/* ── Recent RCA ── */}
-      <div className="glass-card" style={{ padding: 24 }}>
-        <h2 className="section-title">
+      <div className="cyber-card" style={{ padding: 28 }}>
+        <h2 className="section-title" style={{ fontFamily: 'var(--font-title)', fontSize: '1.4rem' }}>
           <span className="icon">🔍</span> Recent RCA Diagnoses
         </h2>
 

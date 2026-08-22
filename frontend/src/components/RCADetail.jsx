@@ -30,8 +30,8 @@ export default function RCADetail({ data, onBack }) {
       </div>
 
       {/* Top Insights Summary */}
-      <div className="glass-card" style={{padding:24,marginBottom:24, borderLeft: '4px solid var(--accent-cyan)'}}>
-        <h3 style={{marginBottom: 16, color: 'var(--accent-cyan)'}}>✨ Top Insights</h3>
+      <div className="cyber-card accent-blue" style={{padding:28,marginBottom:24}}>
+        <h3 style={{marginBottom: 16, color: 'var(--accent-cyan)', fontFamily: 'var(--font-title)'}}>✨ Top Insights</h3>
         <ul style={{listStyleType: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px'}}>
           <li style={{display: 'flex', alignItems: 'flex-start', gap: '12px'}}>
             <span style={{fontSize: '1.2rem'}}>🔴</span>
@@ -68,8 +68,8 @@ export default function RCADetail({ data, onBack }) {
 
       {/* Confidence Breakdown */}
       {data.confidence_components && (
-        <div className="glass-card" style={{padding:24,marginBottom:24}}>
-          <h3 style={{marginBottom: 16}}>🎯 Confidence Breakdown</h3>
+        <div className="cyber-card" style={{padding:28,marginBottom:24}}>
+          <h3 style={{marginBottom: 16, fontFamily: 'var(--font-title)'}}>🎯 Confidence Breakdown</h3>
           <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
             {Object.entries(data.confidence_components).map(([key, value]) => (
               <div key={key}>
@@ -77,7 +77,7 @@ export default function RCADetail({ data, onBack }) {
                   <span>{key.replace('_', ' ').toUpperCase()}</span>
                   <span>{(value * 100).toFixed(1)}% weight</span>
                 </div>
-                <div style={{width: '100%', height: '6px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden'}}>
+                <div style={{width: '100%', height: '6px', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden'}}>
                   <div style={{width: `${value * 100}%`, height: '100%', backgroundColor: 'var(--accent-cyan)', borderRadius: '3px'}}></div>
                 </div>
               </div>
@@ -88,8 +88,8 @@ export default function RCADetail({ data, onBack }) {
 
       {/* Latency Breakdown */}
       {data.latency_breakdown && (
-        <div className="glass-card" style={{padding:24,marginBottom:24}}>
-          <h3 style={{marginBottom: 16}}>⏱️ Latency Breakdown</h3>
+        <div className="cyber-card" style={{padding:28,marginBottom:24}}>
+          <h3 style={{marginBottom: 16, fontFamily: 'var(--font-title)'}}>⏱️ Latency Breakdown</h3>
           <div style={{display: 'flex', gap: '4px', width: '100%', height: '24px', borderRadius: '4px', overflow: 'hidden', marginBottom: '16px'}}>
             {Object.entries(data.latency_breakdown).map(([stage, time], i) => {
               const total = Object.values(data.latency_breakdown).reduce((a, b) => a + b, 0);
@@ -120,17 +120,17 @@ export default function RCADetail({ data, onBack }) {
 
       <div className="detail-grid">
         {/* Reasoning Chain */}
-        <div className="glass-card detail-section">
-          <h3>🧠 Reasoning Chain</h3>
+        <div className="cyber-card detail-section" style={{padding:28}}>
+          <h3 style={{fontFamily: 'var(--font-title)'}}>🧠 Reasoning Chain</h3>
           {chain.length > 0 ? (
-            <div className="reasoning-chain">
+            <div className="timeline-container">
               {chain.map((step, i) => (
-                <div key={i} className="chain-step">
-                  <div className="chain-dot">{i+1}</div>
-                  <div className="chain-info">
-                    <div className="chain-title">{step.step}</div>
-                    <div className="chain-result">{step.result}</div>
-                    {step.score !== undefined && <div className="chain-score">Score: {step.score}</div>}
+                <div key={i} className={`timeline-item ${step.score !== undefined && step.score > 0.05 ? 'active' : ''}`}>
+                  <div className="timeline-node">{i+1}</div>
+                  <div className="timeline-content">
+                    <div className="chain-title" style={{fontWeight:600, fontSize:'0.9rem'}}>{step.step}</div>
+                    <div className="chain-result" style={{marginTop:4}}>{step.result}</div>
+                    {step.score !== undefined && <div className="chain-score" style={{marginTop:6}}>Score: {step.score}</div>}
                   </div>
                 </div>
               ))}
@@ -141,8 +141,8 @@ export default function RCADetail({ data, onBack }) {
         </div>
 
         {/* Feature Ranking */}
-        <div className="glass-card detail-section">
-          <h3>📊 Ranked Features</h3>
+        <div className="cyber-card detail-section" style={{padding:28}}>
+          <h3 style={{fontFamily: 'var(--font-title)'}}>📊 Ranked Features</h3>
           {features.length > 0 ? (
             <div className="feature-rank">
               {features.slice(0,8).map((f, i) => (
@@ -171,7 +171,7 @@ export default function RCADetail({ data, onBack }) {
       </div>
 
       {/* Feedback */}
-      <div className="glass-card" style={{marginTop:24}}>
+      <div className="cyber-card" style={{marginTop:24}}>
         <div className="feedback-section">
           {feedbackSent ? (
             <span style={{color:'var(--accent-emerald)',fontWeight:600}}>✓ Feedback submitted</span>

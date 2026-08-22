@@ -67,8 +67,8 @@ export default function Simulator({ onViewRCA }) {
       </div>
       
       {benchmarkResult && (
-        <div className="glass-card" style={{ padding: 24, marginBottom: 24 }}>
-          <h3 style={{ marginBottom: 16, fontWeight: 700 }}>🏆 Benchmark Demo Results</h3>
+        <div className="cyber-card accent-purple" style={{ padding: 28, marginBottom: 24 }}>
+          <h3 style={{ marginBottom: 16, fontWeight: 700, fontFamily: 'var(--font-title)' }}>🏆 Benchmark Demo Results</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
             {benchmarkResult.map((res, i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.05)', padding: 16, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -85,8 +85,8 @@ export default function Simulator({ onViewRCA }) {
       )}
 
       <div className="sim-grid">
-        <div className="glass-card sim-form">
-          <h3 style={{marginBottom:20,fontSize:'1rem',fontWeight:700}}>⚙️ Config</h3>
+        <div className="cyber-card sim-form" style={{ padding: 28 }}>
+          <h3 style={{marginBottom:20,fontSize:'1.1rem',fontWeight:700, fontFamily: 'var(--font-title)'}}>⚙️ Config</h3>
           <div className="form-group">
             <label className="form-label">Failure Type</label>
             <select className="form-select" value={failureType} onChange={e=>setFailureType(e.target.value)}>
@@ -123,13 +123,13 @@ export default function Simulator({ onViewRCA }) {
           </button>
         </div>
         <div>
-          {error && <div className="glass-card" style={{padding:24,borderColor:'rgba(244,63,94,0.3)'}}><p style={{color:'var(--accent-rose)'}}>❌ {error}</p></div>}
-          {!result && !error && !loading && <div className="glass-card empty-state"><div className="empty-icon">🧪</div><p>Configure and run a simulation</p></div>}
-          {loading && <div className="glass-card loading-overlay"><div className="spinner"></div><span>Running simulation + RCA...</span></div>}
+          {error && <div className="cyber-card" style={{padding:28,borderColor:'rgba(244,63,94,0.3)'}}><p style={{color:'var(--accent-rose)'}}>❌ {error}</p></div>}
+          {!result && !error && !loading && <div className="cyber-card empty-state"><div className="empty-icon">🧪</div><p>Configure and run a simulation</p></div>}
+          {loading && <div className="cyber-card loading-overlay"><div className="spinner"></div><span>Running simulation + RCA...</span></div>}
           {result && (
             <div style={{display:'flex',flexDirection:'column',gap:16}}>
-              <div className="glass-card" style={{padding:24}}>
-                <h3 style={{marginBottom:16,fontWeight:700}}>📋 Simulation</h3>
+              <div className="cyber-card accent-blue" style={{padding:28}}>
+                <h3 style={{marginBottom:16,fontWeight:700, fontFamily: 'var(--font-title)'}}>📋 Simulation</h3>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                   <div><span className="stat-label">Type</span><div style={{fontWeight:600}}>{result.simulation_type}</div></div>
                   <div><span className="stat-label">Target</span><div style={{fontWeight:600}}>{result.target_feature||'All'}</div></div>
@@ -138,8 +138,8 @@ export default function Simulator({ onViewRCA }) {
                 </div>
               </div>
               {result.rca_result && (
-                <div className="glass-card" style={{padding:24}}>
-                  <h3 style={{marginBottom:16,fontWeight:700}}>🔍 RCA Diagnosis</h3>
+                <div className="cyber-card" style={{padding:28}}>
+                  <h3 style={{marginBottom:16,fontWeight:700, fontFamily: 'var(--font-title)'}}>🔍 RCA Diagnosis</h3>
                   <div style={{marginBottom:16,padding:16,background:'rgba(59,130,246,0.05)',borderRadius:'var(--radius-md)',border:'1px solid rgba(59,130,246,0.15)'}}>
                     <div style={{fontWeight:700,marginBottom:4}}>{result.rca_result.root_cause}</div>
                     <div style={{fontSize:'0.85rem',color:'var(--text-secondary)'}}>{result.rca_result.root_cause_detail}</div>

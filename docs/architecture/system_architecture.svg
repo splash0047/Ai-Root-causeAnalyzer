@@ -1,0 +1,212 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" width="100%" height="100%" style="background:#0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="primary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+    <linearGradient id="cyan-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#0e7490" />
+    </linearGradient>
+    <linearGradient id="emerald-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="amber-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="card-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+    <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Marker Arrow -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#64748b" />
+    </marker>
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#06b6d4" />
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#a855f7" />
+    </marker>
+  </defs>
+
+  <!-- Title & Header -->
+  <g transform="translate(60, 40)">
+    <text x="0" y="0" fill="#f8fafc" font-size="24" font-weight="700" letter-spacing="-0.5">AI Root Cause Analyzer (RCA)</text>
+    <text x="0" y="24" fill="#94a3b8" font-size="14">End-to-End System Architecture &amp; Causal Reasoning Pipeline</text>
+  </g>
+
+  <!-- SECTION 1: INGESTION & CLIENT -->
+  <g transform="translate(60, 100)" filter="url(#shadow)">
+    <!-- Container -->
+    <rect width="280" height="520" rx="12" fill="url(#card-bg)" stroke="#334155" stroke-width="1.5" />
+    
+    <!-- Section Header -->
+    <path d="M 0 12 C 0 5.37 5.37 0 12 0 L 268 0 C 274.63 0 280 5.37 280 12 L 280 44 L 0 44 Z" fill="#1e293b" />
+    <circle cx="24" cy="22" r="6" fill="#3b82f6" />
+    <text x="38" y="27" fill="#f8fafc" font-size="14" font-weight="600">Frontend &amp; Ingestion Layer</text>
+
+    <!-- React Card -->
+    <g transform="translate(20, 64)">
+      <rect width="240" height="150" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.2" />
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="url(#primary-grad)" />
+      <text x="48" y="30" fill="#f8fafc" font-size="13" font-weight="600">React 18 + Vite UI</text>
+      <text x="14" y="62" fill="#94a3b8" font-size="11">• Real-Time Anomaly Dashboard</text>
+      <text x="14" y="82" fill="#94a3b8" font-size="11">• Interactive Failure Simulator</text>
+      <text x="14" y="102" fill="#94a3b8" font-size="11">• Diagnostic Reasoning Tree</text>
+      <text x="14" y="122" fill="#94a3b8" font-size="11">• Ablation Study Harness UI</text>
+    </g>
+
+    <!-- Data Stream / Simulator Card -->
+    <g transform="translate(20, 234)">
+      <rect width="240" height="130" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1" />
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="url(#amber-grad)" />
+      <text x="48" y="30" fill="#f8fafc" font-size="13" font-weight="600">Failure Simulator</text>
+      <text x="14" y="60" fill="#94a3b8" font-size="11">• Noise Injection &amp; Feature Skew</text>
+      <text x="14" y="80" fill="#94a3b8" font-size="11">• Concept &amp; Covariate Drift</text>
+      <text x="14" y="100" fill="#94a3b8" font-size="11">• Missing Values &amp; Interactions</text>
+    </g>
+
+    <!-- Data Ingestion Stream -->
+    <g transform="translate(20, 384)">
+      <rect width="240" height="110" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1" />
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="url(#emerald-grad)" />
+      <text x="48" y="30" fill="#f8fafc" font-size="13" font-weight="600">Production Inference Data</text>
+      <text x="14" y="60" fill="#94a3b8" font-size="11">• Batched tabular payloads</text>
+      <text x="14" y="80" fill="#94a3b8" font-size="11">• Ground truth labels &amp; metadata</text>
+    </g>
+  </g>
+
+  <!-- CONNECTOR 1 -> 2 -->
+  <path d="M 340 240 L 400 240" fill="none" stroke="#06b6d4" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow-cyan)" />
+  <path d="M 340 440 L 400 440" fill="none" stroke="#06b6d4" stroke-width="2" marker-end="url(#arrow-cyan)" />
+
+  <!-- SECTION 2: FASTAPI BACKEND GATEWAY -->
+  <g transform="translate(400, 100)" filter="url(#shadow)">
+    <rect width="360" height="520" rx="12" fill="url(#card-bg)" stroke="#334155" stroke-width="1.5" />
+    <path d="M 0 12 C 0 5.37 5.37 0 12 0 L 348 0 C 354.63 0 360 5.37 360 12 L 360 44 L 0 44 Z" fill="#1e293b" />
+    <circle cx="24" cy="22" r="6" fill="#06b6d4" />
+    <text x="38" y="27" fill="#f8fafc" font-size="14" font-weight="600">FastAPI Orchestration Backend (8 Endpoints)</text>
+
+    <!-- REST API Endpoints -->
+    <g transform="translate(20, 60)">
+      <rect width="320" height="90" rx="8" fill="#1e293b" stroke="#06b6d4" stroke-width="1" />
+      <text x="14" y="24" fill="#38bdf8" font-size="11" font-weight="700">REST API &amp; MIDDLEWARE</text>
+      <text x="14" y="46" fill="#e2e8f0" font-size="11" font-family="monospace">POST /rca  |  POST /ingest  |  POST /simulate</text>
+      <text x="14" y="66" fill="#e2e8f0" font-size="11" font-family="monospace">POST /ablation  |  GET /metrics  |  POST /feedback</text>
+    </g>
+
+    <!-- RCA Engine Core -->
+    <g transform="translate(20, 164)">
+      <rect width="320" height="330" rx="8" fill="#0f172a" stroke="#3b82f6" stroke-width="1.5" />
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="url(#primary-grad)" />
+      <text x="48" y="30" fill="#f8fafc" font-size="13" font-weight="600">6-Signal Causal Diagnostic Engine</text>
+
+      <!-- Signals Grid inside Engine -->
+      <g transform="translate(14, 52)">
+        <rect width="140" height="56" rx="6" fill="#1e293b" stroke="#334155" />
+        <text x="10" y="22" fill="#38bdf8" font-size="11" font-weight="600">1. Data Integrity</text>
+        <text x="10" y="40" fill="#94a3b8" font-size="9">Nulls, ranges, types</text>
+      </g>
+      <g transform="translate(166, 52)">
+        <rect width="140" height="56" rx="6" fill="#1e293b" stroke="#334155" />
+        <text x="10" y="22" fill="#38bdf8" font-size="11" font-weight="600">2. Covariate Drift</text>
+        <text x="10" y="40" fill="#94a3b8" font-size="9">KS-test &amp; PSI shifts</text>
+      </g>
+      <g transform="translate(14, 118)">
+        <rect width="140" height="56" rx="6" fill="#1e293b" stroke="#334155" />
+        <text x="10" y="22" fill="#a855f7" font-size="11" font-weight="600">3. SHAP Attribution</text>
+        <text x="10" y="40" fill="#94a3b8" font-size="9">Local feature importance</text>
+      </g>
+      <g transform="translate(166, 118)">
+        <rect width="140" height="56" rx="6" fill="#1e293b" stroke="#a855f7" stroke-width="1.2" />
+        <text x="10" y="22" fill="#c084fc" font-size="11" font-weight="700">4. Counterfactuals</text>
+        <text x="10" y="40" fill="#94a3b8" font-size="9">Causal bound inversion</text>
+      </g>
+      <g transform="translate(14, 184)">
+        <rect width="140" height="56" rx="6" fill="#1e293b" stroke="#334155" />
+        <text x="10" y="22" fill="#38bdf8" font-size="11" font-weight="600">5. Interaction Tests</text>
+        <text x="10" y="40" fill="#94a3b8" font-size="9">Joint-distribution drop</text>
+      </g>
+      <g transform="translate(166, 184)">
+        <rect width="140" height="56" rx="6" fill="#1e293b" stroke="#334155" />
+        <text x="10" y="22" fill="#38bdf8" font-size="11" font-weight="600">6. Multi-Signal Fusion</text>
+        <text x="10" y="40" fill="#94a3b8" font-size="9">Confidence scoring</text>
+      </g>
+
+      <!-- Active Feedback evolving weights -->
+      <g transform="translate(14, 250)">
+        <rect width="292" height="66" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="1" />
+        <text x="10" y="22" fill="#34d399" font-size="11" font-weight="600">Dynamic Weight Evolution (Feedback Loop)</text>
+        <text x="10" y="42" fill="#94a3b8" font-size="10">Self-calibrating signal weights based on human engineer reviews</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- CONNECTOR 2 -> 3 -->
+  <path d="M 760 250 L 820 250" fill="none" stroke="#a855f7" stroke-width="2" marker-end="url(#arrow-purple)" />
+  <path d="M 760 480 L 820 480" fill="none" stroke="#10b981" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- SECTION 3: INTELLIGENCE & PERSISTENCE LAYER -->
+  <g transform="translate(820, 100)" filter="url(#shadow)">
+    <rect width="320" height="520" rx="12" fill="url(#card-bg)" stroke="#334155" stroke-width="1.5" />
+    <path d="M 0 12 C 0 5.37 5.37 0 12 0 L 308 0 C 314.63 0 320 5.37 320 12 L 320 44 L 0 44 Z" fill="#1e293b" />
+    <circle cx="24" cy="22" r="6" fill="#a855f7" />
+    <text x="38" y="27" fill="#f8fafc" font-size="14" font-weight="600">AI Reasoning &amp; Storage</text>
+
+    <!-- Vector Memory (RAG) -->
+    <g transform="translate(20, 60)">
+      <rect width="280" height="130" rx="8" fill="#1e293b" stroke="#a855f7" stroke-width="1.2" />
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="url(#purple-grad)" />
+      <text x="48" y="30" fill="#f8fafc" font-size="13" font-weight="600">Pinecone Vector Memory (RAG)</text>
+      <text x="14" y="60" fill="#94a3b8" font-size="11">• Failure Fingerprint Embeddings</text>
+      <text x="14" y="80" fill="#94a3b8" font-size="11">• Cosine Similarity k-NN Retrieval</text>
+      <text x="14" y="100" fill="#94a3b8" font-size="11">• Past incident context injection</text>
+    </g>
+
+    <!-- Generative LLM Reasoner -->
+    <g transform="translate(20, 204)">
+      <rect width="280" height="130" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1" />
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="url(#cyan-grad)" />
+      <text x="48" y="30" fill="#f8fafc" font-size="13" font-weight="600">LLM Diagnostic Synthesis</text>
+      <text x="14" y="60" fill="#94a3b8" font-size="11">• Gemini 1.5 / GPT-4 Reasoning</text>
+      <text x="14" y="80" fill="#94a3b8" font-size="11">• Root Cause narrative synthesis</text>
+      <text x="14" y="100" fill="#94a3b8" font-size="11">• Actionable step-by-step remediation</text>
+    </g>
+
+    <!-- Relational Database -->
+    <g transform="translate(20, 348)">
+      <rect width="280" height="146" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1" />
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="url(#emerald-grad)" />
+      <text x="48" y="30" fill="#f8fafc" font-size="13" font-weight="600">Relational Database</text>
+      <text x="14" y="60" fill="#94a3b8" font-size="11">• PostgreSQL / SQLite fallback</text>
+      <text x="14" y="80" fill="#94a3b8" font-size="11">• RCALog &amp; Prediction audit logs</text>
+      <text x="14" y="100" fill="#94a3b8" font-size="11">• Human feedback annotations</text>
+      <text x="14" y="120" fill="#94a3b8" font-size="11">• Evolving weight history</text>
+    </g>
+  </g>
+
+  <!-- Bottom Legend / Status -->
+  <g transform="translate(60, 640)">
+    <text x="0" y="0" fill="#64748b" font-size="12">⚡ Sub-500ms End-to-End Diagnostic Latency</text>
+    <text x="350" y="0" fill="#64748b" font-size="12">🔒 Bounded Counterfactual Causal Verification</text>
+    <text x="750" y="0" fill="#64748b" font-size="12">🧠 RAG Memory &amp; Continuous Feedback Calibration</text>
+  </g>
+</svg>

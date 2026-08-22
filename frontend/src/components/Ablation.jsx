@@ -25,7 +25,7 @@ export default function Ablation() {
       </div>
 
       {/* Controls */}
-      <div className="glass-card" style={{padding:24,marginBottom:24,display:'flex',alignItems:'center',gap:24}}>
+      <div className="cyber-card" style={{padding:28,marginBottom:24,display:'flex',alignItems:'center',gap:24}}>
         <div>
           <span className="form-label">Samples per scenario</span>
           <select className="form-select" value={nSamples} onChange={e=>setNSamples(Number(e.target.value))} style={{width:140}}>
@@ -40,10 +40,10 @@ export default function Ablation() {
         {loading && <span style={{fontSize:'0.8rem',color:'var(--text-muted)',marginTop:20}}>This takes 2-5 minutes...</span>}
       </div>
 
-      {error && <div className="glass-card" style={{padding:24,borderColor:'rgba(244,63,94,0.3)'}}><p style={{color:'var(--accent-rose)'}}>❌ {error}</p></div>}
+      {error && <div className="cyber-card" style={{padding:28,borderColor:'rgba(244,63,94,0.3)'}}><p style={{color:'var(--accent-rose)'}}>❌ {error}</p></div>}
 
       {loading && (
-        <div className="glass-card loading-overlay" style={{minHeight:300}}>
+        <div className="cyber-card loading-overlay" style={{minHeight:300}}>
           <div className="spinner"></div>
           <span>Running 12 failure scenarios × 4 configurations...</span>
           <span style={{fontSize:'0.8rem',color:'var(--text-muted)'}}>Drift → +SHAP → +Counterfactuals → Full Pipeline</span>
@@ -55,7 +55,7 @@ export default function Ablation() {
           {/* Accuracy Progression */}
           <div className="metrics-grid" style={{marginBottom:24}}>
             {result.configs?.map((config, i) => (
-              <div key={i} className={`glass-card stat-card ${['blue','green','amber','purple'][i]}`}>
+              <div key={i} className={`cyber-card stat-card ${['accent-blue','accent-green','accent-amber','accent-purple'][i]}`}>
                 <div className="stat-label">{config.name}</div>
                 <div className={`stat-value ${['','green','amber',''][i]}`}>{(config.accuracy * 100).toFixed(0)}%</div>
                 <div style={{marginTop:8,fontSize:'0.8rem',color:'var(--text-muted)'}}>
@@ -66,8 +66,8 @@ export default function Ablation() {
           </div>
 
           {/* Visual Bar Chart */}
-          <div className="glass-card" style={{padding:24,marginBottom:24}}>
-            <h3 style={{marginBottom:20,fontWeight:700}}>📊 Accuracy Progression</h3>
+          <div className="cyber-card" style={{padding:28,marginBottom:24}}>
+            <h3 style={{marginBottom:20,fontWeight:700, fontFamily: 'var(--font-title)'}}>📊 Accuracy Progression</h3>
             <div style={{display:'flex',flexDirection:'column',gap:16}}>
               {result.configs?.map((config, i) => (
                 <div key={i} style={{display:'flex',alignItems:'center',gap:16}}>
@@ -90,7 +90,7 @@ export default function Ablation() {
           </div>
 
           {/* Scenario Details */}
-          <div className="glass-card" style={{overflow:'auto'}}>
+          <div className="cyber-card" style={{overflow:'auto', padding:20}}>
             <table className="history-table">
               <thead>
                 <tr>
@@ -130,7 +130,7 @@ export default function Ablation() {
       )}
 
       {!result && !loading && !error && (
-        <div className="glass-card empty-state" style={{minHeight:300}}>
+        <div className="cyber-card empty-state" style={{minHeight:300}}>
           <div className="empty-icon">🔬</div>
           <p>Run the ablation study to see how each component improves detection accuracy across 12 failure scenarios.</p>
         </div>

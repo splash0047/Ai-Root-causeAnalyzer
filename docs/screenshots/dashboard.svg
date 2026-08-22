@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="100%" height="100%" style="background:#090d16; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <linearGradient id="card-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#151d30" />
+      <stop offset="100%" stop-color="#0c1220" />
+    </linearGradient>
+    <linearGradient id="cyan-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="red-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#dc2626" />
+    </linearGradient>
+    <linearGradient id="emerald-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="shadow-filter" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Left Sidebar -->
+  <g transform="translate(0, 0)">
+    <rect width="220" height="700" fill="#0c1220" stroke="#1e293b" stroke-width="1" />
+    
+    <!-- Logo -->
+    <g transform="translate(20, 25)">
+      <rect width="32" height="32" rx="8" fill="url(#cyan-accent)" />
+      <text x="10" y="21" fill="#fff" font-size="16" font-weight="700">🔍</text>
+      <text x="42" y="16" fill="#f8fafc" font-size="14" font-weight="700">AI-RCA</text>
+      <text x="42" y="28" fill="#64748b" font-size="10">Observability Platform</text>
+    </g>
+
+    <!-- Nav Items -->
+    <g transform="translate(15, 80)">
+      <!-- Dashboard (Active) -->
+      <rect width="190" height="38" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1" />
+      <text x="35" y="24" fill="#38bdf8" font-size="13" font-weight="600">📊 Dashboard</text>
+
+      <g transform="translate(0, 48)">
+        <text x="35" y="24" fill="#94a3b8" font-size="13">🔬 RCA History</text>
+      </g>
+      <g transform="translate(0, 96)">
+        <text x="35" y="24" fill="#94a3b8" font-size="13">⚡ Failure Simulator</text>
+      </g>
+      <g transform="translate(0, 144)">
+        <text x="35" y="24" fill="#94a3b8" font-size="13">🧪 Ablation Study</text>
+      </g>
+      <g transform="translate(0, 192)">
+        <text x="35" y="24" fill="#94a3b8" font-size="13">📈 Model Evaluation</text>
+      </g>
+      <g transform="translate(0, 240)">
+        <text x="35" y="24" fill="#94a3b8" font-size="13">⚙️ Settings</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Top Bar -->
+  <g transform="translate(240, 20)">
+    <text x="0" y="20" fill="#f8fafc" font-size="20" font-weight="700">Production Model Health &amp; RCA Overview</text>
+    <text x="0" y="40" fill="#64748b" font-size="12">Active Model: XGBoost-LoanDefault-v2.4  |  Monitoring Window: Last 24 Hours</text>
+    
+    <rect x="740" y="5" width="180" height="32" rx="6" fill="#1e293b" stroke="#334155" />
+    <circle cx="755" cy="21" r="4" fill="#10b981" />
+    <text x="768" y="25" fill="#f8fafc" font-size="11">Backend Live: Port 8000</text>
+  </g>
+
+  <!-- KPI Cards Row -->
+  <g transform="translate(240, 80)">
+    <!-- KPI 1: Live Accuracy -->
+    <g transform="translate(0, 0)" filter="url(#shadow-filter)">
+      <rect width="210" height="100" rx="8" fill="url(#card-grad)" stroke="#1e293b" />
+      <text x="16" y="28" fill="#94a3b8" font-size="11" font-weight="600">LIVE MODEL ACCURACY</text>
+      <text x="16" y="65" fill="#f87171" font-size="28" font-weight="700">68.4%</text>
+      <text x="110" y="62" fill="#ef4444" font-size="12">▼ -18.2% drop</text>
+      <text x="16" y="85" fill="#64748b" font-size="10">Baseline: 86.6%</text>
+    </g>
+
+    <!-- KPI 2: Active Anomalies -->
+    <g transform="translate(230, 0)" filter="url(#shadow-filter)">
+      <rect width="210" height="100" rx="8" fill="url(#card-grad)" stroke="#ef4444" stroke-width="1.2" />
+      <text x="16" y="28" fill="#fca5a5" font-size="11" font-weight="600">CRITICAL ANOMALIES</text>
+      <text x="16" y="65" fill="#f87171" font-size="28" font-weight="700">3</text>
+      <text x="50" y="62" fill="#ef4444" font-size="12">Active Incident</text>
+      <text x="16" y="85" fill="#fca5a5" font-size="10">Auto-RCA Triggered</text>
+    </g>
+
+    <!-- KPI 3: RCA Accuracy -->
+    <g transform="translate(460, 0)" filter="url(#shadow-filter)">
+      <rect width="210" height="100" rx="8" fill="url(#card-grad)" stroke="#1e293b" />
+      <text x="16" y="28" fill="#94a3b8" font-size="11" font-weight="600">RCA DIAGNOSTIC ACCURACY</text>
+      <text x="16" y="65" fill="#34d399" font-size="28" font-weight="700">92.4%</text>
+      <text x="110" y="62" fill="#10b981" font-size="12">Validated</text>
+      <text x="16" y="85" fill="#64748b" font-size="10">Ablation Benchmark</text>
+    </g>
+
+    <!-- KPI 4: Mean Triage Time -->
+    <g transform="translate(690, 0)" filter="url(#shadow-filter)">
+      <rect width="230" height="100" rx="8" fill="url(#card-grad)" stroke="#1e293b" />
+      <text x="16" y="28" fill="#94a3b8" font-size="11" font-weight="600">TIME TO DIAGNOSIS</text>
+      <text x="16" y="65" fill="#38bdf8" font-size="28" font-weight="700">380ms</text>
+      <text x="120" y="62" fill="#38bdf8" font-size="12">vs 2h Manual</text>
+      <text x="16" y="85" fill="#64748b" font-size="10">99.7% MTTR Reduction</text>
+    </g>
+  </g>
+
+  <!-- Main Content Row -->
+  <g transform="translate(240, 200)">
+    <!-- Active Incident Card (Left) -->
+    <g transform="translate(0, 0)" filter="url(#shadow-filter)">
+      <rect width="560" height="470" rx="8" fill="url(#card-grad)" stroke="#334155" />
+      <path d="M 0 8 C 0 3.58 3.58 0 8 0 L 552 0 C 556.42 0 560 3.58 560 8 L 560 40 L 0 40 Z" fill="#1e293b" />
+      <text x="20" y="26" fill="#f8fafc" font-size="13" font-weight="700">🚨 Top Root Cause Diagnosis (Incident #INC-8921)</text>
+
+      <g transform="translate(20, 60)">
+        <rect width="520" height="60" rx="6" fill="#1e293b" stroke="#ef4444" />
+        <text x="16" y="24" fill="#fca5a5" font-size="12" font-weight="700">Identified Root Cause: Severe Covariate Shift on `credit_score`</text>
+        <text x="16" y="44" fill="#94a3b8" font-size="11">Confidence: 94.2%  |  Severity: CRITICAL  |  Causal Flip Rate: 88.0%</text>
+      </g>
+
+      <!-- Diagnostic Reasoning Summary -->
+      <g transform="translate(20, 135)">
+        <text x="0" y="15" fill="#38bdf8" font-size="12" font-weight="600">LLM Diagnostic Synthesis (Gemini 1.5):</text>
+        <rect y="25" width="520" height="90" rx="6" fill="#0f172a" stroke="#1e293b" />
+        <text x="12" y="48" fill="#e2e8f0" font-size="11">"A 32% drop in credit_score values occurred in the 14:00 batch. Counterfactual</text>
+        <text x="12" y="68" fill="#e2e8f0" font-size="11">perturbation confirms this shifted 88% of false rejections. Vector memory matches</text>
+        <text x="12" y="88" fill="#e2e8f0" font-size="11">Incident #INC-4412 (Upstream Credit Bureau API formatting outage)."</text>
+      </g>
+
+      <!-- Feature Impact Breakdown -->
+      <g transform="translate(20, 270)">
+        <text x="0" y="15" fill="#f8fafc" font-size="12" font-weight="600">Signal Evidence Attribution:</text>
+        
+        <!-- Bar 1: credit_score -->
+        <text x="0" y="42" fill="#cbd5e1" font-size="11">credit_score</text>
+        <rect x="110" y="32" width="300" height="14" rx="3" fill="#ef4444" />
+        <text x="420" y="44" fill="#f87171" font-size="11">0.94 (Causal Driver)</text>
+
+        <!-- Bar 2: debt_to_income -->
+        <text x="0" y="68" fill="#cbd5e1" font-size="11">debt_to_income</text>
+        <rect x="110" y="58" width="110" height="14" rx="3" fill="#f59e0b" />
+        <text x="230" y="70" fill="#fbbf24" font-size="11">0.32 (Correlated)</text>
+
+        <!-- Bar 3: loan_amount -->
+        <text x="0" y="94" fill="#cbd5e1" font-size="11">loan_amount</text>
+        <rect x="110" y="84" width="40" height="14" rx="3" fill="#64748b" />
+        <text x="160" y="96" fill="#94a3b8" font-size="11">0.08 (Normal)</text>
+      </g>
+
+      <!-- Remediation Button -->
+      <g transform="translate(20, 410)">
+        <rect width="240" height="36" rx="6" fill="#0284c7" />
+        <text x="35" y="23" fill="#ffffff" font-size="12" font-weight="600">🔧 View Remediation Playbook</text>
+
+        <rect x="260" y="0" width="140" height="36" rx="6" fill="#1e293b" stroke="#10b981" />
+        <text x="280" y="23" fill="#34d399" font-size="12" font-weight="600">✓ Confirm RCA</text>
+      </g>
+    </g>
+
+    <!-- Recent Diagnostic History (Right) -->
+    <g transform="translate(580, 0)" filter="url(#shadow-filter)">
+      <rect width="340" height="470" rx="8" fill="url(#card-grad)" stroke="#334155" />
+      <path d="M 0 8 C 0 3.58 3.58 0 8 0 L 332 0 C 336.42 0 340 3.58 340 8 L 340 40 L 0 40 Z" fill="#1e293b" />
+      <text x="20" y="26" fill="#f8fafc" font-size="13" font-weight="700">📋 Recent Diagnoses &amp; Feedback</text>
+
+      <!-- Incident 1 -->
+      <g transform="translate(16, 55)">
+        <rect width="308" height="85" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="1" />
+        <text x="12" y="22" fill="#f87171" font-size="11" font-weight="700">#INC-8921 • credit_score drift</text>
+        <text x="220" y="22" fill="#ef4444" font-size="10">CRITICAL</text>
+        <text x="12" y="42" fill="#94a3b8" font-size="10">Confidence: 94.2% • 380ms</text>
+        <text x="12" y="62" fill="#38bdf8" font-size="10">Remediation: Upstream imputation fix</text>
+      </g>
+
+      <!-- Incident 2 -->
+      <g transform="translate(16, 150)">
+        <rect width="308" height="85" rx="6" fill="#0f172a" stroke="#f59e0b" stroke-width="1" />
+        <text x="12" y="22" fill="#fbbf24" font-size="11" font-weight="700">#INC-8919 • income nulls surge</text>
+        <text x="230" y="22" fill="#f59e0b" font-size="10">HIGH</text>
+        <text x="12" y="42" fill="#94a3b8" font-size="10">Confidence: 96.0% • 120ms</text>
+        <text x="12" y="62" fill="#10b981" font-size="10">Feedback: Confirmed ✓</text>
+      </g>
+
+      <!-- Incident 3 -->
+      <g transform="translate(16, 245)">
+        <rect width="308" height="85" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1" />
+        <text x="12" y="22" fill="#34d399" font-size="11" font-weight="700">#INC-8914 • age x income interaction</text>
+        <text x="220" y="22" fill="#10b981" font-size="10">MEDIUM</text>
+        <text x="12" y="42" fill="#94a3b8" font-size="10">Confidence: 87.5% • 410ms</text>
+        <text x="12" y="62" fill="#10b981" font-size="10">Feedback: Confirmed ✓</text>
+      </g>
+
+      <!-- Incident 4 -->
+      <g transform="translate(16, 340)">
+        <rect width="308" height="85" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1" />
+        <text x="12" y="22" fill="#94a3b8" font-size="11" font-weight="700">#INC-8890 • debt_to_income noise</text>
+        <text x="240" y="22" fill="#64748b" font-size="10">LOW</text>
+        <text x="12" y="42" fill="#64748b" font-size="10">Confidence: 79.1% • 290ms</text>
+        <text x="12" y="62" fill="#10b981" font-size="10">Feedback: Confirmed ✓</text>
+      </g>
+    </g>
+  </g>
+</svg>

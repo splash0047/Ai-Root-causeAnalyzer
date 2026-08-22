@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" width="100%" height="100%" style="background:#0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <linearGradient id="grad-red" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#991b1b" />
+    </linearGradient>
+    <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#065f46" />
+    </linearGradient>
+    <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1e40af" />
+    </linearGradient>
+    <filter id="box-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8" />
+    </marker>
+  </defs>
+
+  <!-- Header -->
+  <g transform="translate(50, 40)">
+    <text x="0" y="0" fill="#f8fafc" font-size="22" font-weight="700">Bounded Counterfactual Causal Inversion Protocol</text>
+    <text x="0" y="24" fill="#94a3b8" font-size="13">Mathematical proof of failure causality vs mere statistical correlation</text>
+  </g>
+
+  <!-- Step 1: Corrupted State -->
+  <g transform="translate(50, 100)" filter="url(#box-shadow)">
+    <rect width="280" height="340" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="1.2" />
+    <path d="M 0 10 C 0 4.48 4.48 0 10 0 L 270 0 C 275.52 0 280 4.48 280 10 L 280 40 L 0 40 Z" fill="#2d1517" />
+    <text x="16" y="25" fill="#fca5a5" font-size="13" font-weight="700">1. Corrupted Inference State</text>
+    
+    <g transform="translate(16, 55)">
+      <text x="0" y="15" fill="#e2e8f0" font-size="11" font-weight="600">Observation:</text>
+      <text x="0" y="32" fill="#94a3b8" font-size="11">• Ingested batch accuracy drops: 89% → 64%</text>
+      <text x="0" y="52" fill="#94a3b8" font-size="11">• KS-test detects shift on `credit_score`</text>
+      <text x="0" y="72" fill="#94a3b8" font-size="11">• High SHAP magnitude on `credit_score`</text>
+
+      <rect y="100" width="248" height="70" rx="6" fill="#0f172a" stroke="#334155" />
+      <text x="12" y="122" fill="#f87171" font-size="11" font-family="monospace">x_anomaly['credit_score'] = 420</text>
+      <text x="12" y="142" fill="#f87171" font-size="11" font-family="monospace">y_pred = 0 (FAILED / REJECTED)</text>
+
+      <text x="0" y="210" fill="#cbd5e1" font-size="11">❓ <tspan font-weight="600">Question:</tspan> Is `credit_score` truly causal or just correlated with another hidden variable?</text>
+    </g>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <path d="M 330 270 L 390 270" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Step 2: Bounded Inversion -->
+  <g transform="translate(410, 100)" filter="url(#box-shadow)">
+    <rect width="280" height="340" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
+    <path d="M 0 10 C 0 4.48 4.48 0 10 0 L 270 0 C 275.52 0 280 4.48 280 10 L 280 40 L 0 40 Z" fill="#0c4a6e" />
+    <text x="16" y="25" fill="#bae6fd" font-size="13" font-weight="700">2. Inversion Perturbation</text>
+    
+    <g transform="translate(16, 55)">
+      <text x="0" y="15" fill="#e2e8f0" font-size="11" font-weight="600">Mechanism:</text>
+      <text x="0" y="32" fill="#94a3b8" font-size="11">• Freeze all other (N-1) features as-is</text>
+      <text x="0" y="52" fill="#94a3b8" font-size="11">• Sample synthetic value from baseline stats:</text>
+      
+      <rect y="70" width="248" height="50" rx="6" fill="#0f172a" stroke="#0284c7" />
+      <text x="12" y="92" fill="#38bdf8" font-size="10" font-family="monospace">x_cf = x.copy()</text>
+      <text x="12" y="108" fill="#38bdf8" font-size="10" font-family="monospace">x_cf[f] = μ_train[f] ± α * σ_train[f]</text>
+
+      <text x="0" y="145" fill="#94a3b8" font-size="11">• Target range constrained within [μ - 2σ, μ + 2σ]</text>
+      <text x="0" y="165" fill="#94a3b8" font-size="11">• Re-evaluates model response:</text>
+      
+      <rect y="180" width="248" height="40" rx="6" fill="#0f172a" stroke="#334155" />
+      <text x="12" y="205" fill="#e2e8f0" font-size="10" font-family="monospace">y_cf = model.predict(x_cf)</text>
+    </g>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <path d="M 690 270 L 750 270" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Step 3: Verified Causal Proof -->
+  <g transform="translate(770, 100)" filter="url(#box-shadow)">
+    <rect width="280" height="340" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="1.2" />
+    <path d="M 0 10 C 0 4.48 4.48 0 10 0 L 270 0 C 275.52 0 280 4.48 280 10 L 280 40 L 0 40 Z" fill="#064e3b" />
+    <text x="16" y="25" fill="#a7f3d0" font-size="13" font-weight="700">3. Causal Verification</text>
+    
+    <g transform="translate(16, 55)">
+      <text x="0" y="15" fill="#e2e8f0" font-size="11" font-weight="600">Verification Rule:</text>
+      <text x="0" y="32" fill="#94a3b8" font-size="11">• If reversing drift flips &gt; 70% erroneous</text>
+      <text x="0" y="48" fill="#94a3b8" font-size="11">  predictions back to correct ground truth:</text>
+
+      <rect y="65" width="248" height="70" rx="6" fill="#0f172a" stroke="#059669" />
+      <text x="12" y="87" fill="#34d399" font-size="11" font-family="monospace">Flip Rate: 87.5% (&gt; threshold)</text>
+      <text x="12" y="105" fill="#34d399" font-size="11" font-weight="700">STATUS: PROVEN CAUSAL DRIVER</text>
+      <text x="12" y="123" fill="#6ee7b7" font-size="10">Confidence Boost: +0.25</text>
+
+      <text x="0" y="160" fill="#cbd5e1" font-size="11">• If prediction remains broken: Flagged as</text>
+      <text x="0" y="176" fill="#f87171" font-size="11">  <tspan font-weight="600">Spurious Correlation</tspan> and discarded.</text>
+    </g>
+  </g>
+
+  <!-- Footer Formula -->
+  <g transform="translate(50, 475)">
+    <text x="0" y="0" fill="#64748b" font-size="12">Mathematical Causal Lift Metric:  CausalScore(f) = w_cf · FlipRate(f) + w_shap · |SHAP(f)| + w_drift · (1 - p_value(f))</text>
+  </g>
+</svg>

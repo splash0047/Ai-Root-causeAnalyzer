@@ -56,7 +56,7 @@ export default function RCAHistory({ onViewDetail }) {
       </div>
 
       {/* ── Table ── */}
-      <div className="glass-card" style={{ overflow: 'auto' }}>
+      <div className="cyber-card" style={{ overflow: 'auto', padding: 20 }}>
         {loading ? (
           <div className="loading-overlay"><div className="spinner"></div><span>Loading...</span></div>
         ) : history.length === 0 ? (
@@ -66,7 +66,7 @@ export default function RCAHistory({ onViewDetail }) {
           </div>
         ) : viewMode === 'failures' ? (
           <div className="failures-explorer" style={{ padding: '20px' }}>
-            <h3 style={{ marginBottom: '20px' }}>System Diagnostic Failures</h3>
+            <h3 style={{ marginBottom: '20px', fontFamily: 'var(--font-title)' }}>System Diagnostic Failures</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {history.filter(item => item.user_feedback === 'rejected' || item.confidence_score < 0.4 || (item.ranked_features && item.ranked_features.length > 3)).map(item => {
                 let category = 'Ambiguous Signals';
@@ -76,7 +76,7 @@ export default function RCAHistory({ onViewDetail }) {
                 else if (item.ranked_features && item.ranked_features.length > 3) { category = 'Multi-Cause Conflict'; icon = '⚔️'; }
                 
                 return (
-                  <div key={item.id} className="glass-card" style={{ padding: '16px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  <div key={item.id} className="cyber-card" style={{ padding: '20px', display: 'flex', gap: '16px', alignItems: 'center' }}>
                     <div style={{ fontSize: '2rem' }}>{icon}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>

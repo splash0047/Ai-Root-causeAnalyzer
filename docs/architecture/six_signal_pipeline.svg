@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" width="100%" height="100%" style="background:#0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="sig1-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#b91c1c" />
+    </linearGradient>
+    <linearGradient id="sig2-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="sig3-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+    <linearGradient id="sig4-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="sig5-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="sig6-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ec4899" />
+      <stop offset="100%" stop-color="#be185d" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="card-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+
+    <marker id="arrow-down" viewBox="0 0 10 10" refX="5" refY="6" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 1 0 L 5 8 L 9 0 z" fill="#38bdf8" />
+    </marker>
+    <marker id="arrow-right" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <g transform="translate(60, 40)">
+    <text x="0" y="0" fill="#f8fafc" font-size="24" font-weight="700" letter-spacing="-0.5">6-Signal Causal Diagnostic Reasoning Engine</text>
+    <text x="0" y="24" fill="#94a3b8" font-size="14">Multi-layered statistical attribution + causal verification flow</text>
+  </g>
+
+  <!-- Ingest Anomaly Trigger -->
+  <g transform="translate(60, 95)" filter="url(#card-shadow)">
+    <rect width="1080" height="55" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1.2" />
+    <circle cx="28" cy="27" r="10" fill="#3b82f6" />
+    <text x="50" y="32" fill="#f8fafc" font-size="14" font-weight="600">Incoming Production Batch / Anomaly Trigger Flag (Drop in F1/Accuracy &gt; 5% or PSI &gt; 0.25)</text>
+  </g>
+
+  <!-- 6 Signals Grid -->
+  <!-- Signal 1: Data Integrity -->
+  <g transform="translate(60, 175)" filter="url(#card-shadow)">
+    <rect width="340" height="180" rx="10" fill="#111827" stroke="#ef4444" stroke-width="1.2" />
+    <rect x="0" y="0" width="340" height="38" rx="10" fill="#1f2937" />
+    <rect x="12" y="10" width="18" height="18" rx="4" fill="url(#sig1-grad)" />
+    <text x="38" y="24" fill="#fca5a5" font-size="13" font-weight="700">SIGNAL 1: Data Integrity Check</text>
+    <text x="14" y="65" fill="#e2e8f0" font-size="12" font-weight="600">Deterministic Rule Violations</text>
+    <text x="14" y="85" fill="#94a3b8" font-size="11">• Null / NaN rate exceeding baseline threshold</text>
+    <text x="14" y="105" fill="#94a3b8" font-size="11">• Min / Max numerical bound violations</text>
+    <text x="14" y="125" fill="#94a3b8" font-size="11">• Schema type drift &amp; unmapped categories</text>
+    <text x="14" y="155" fill="#ef4444" font-size="11" font-weight="600">Output: Hard Failure Vector [0, 1]</text>
+  </g>
+
+  <!-- Signal 2: Covariate Drift -->
+  <g transform="translate(430, 175)" filter="url(#card-shadow)">
+    <rect width="340" height="180" rx="10" fill="#111827" stroke="#f59e0b" stroke-width="1.2" />
+    <rect x="0" y="0" width="340" height="38" rx="10" fill="#1f2937" />
+    <rect x="12" y="10" width="18" height="18" rx="4" fill="url(#sig2-grad)" />
+    <text x="38" y="24" fill="#fcd34d" font-size="13" font-weight="700">SIGNAL 2: Distributional Drift</text>
+    <text x="14" y="65" fill="#e2e8f0" font-size="12" font-weight="600">Continuous Covariate Shift</text>
+    <text x="14" y="85" fill="#94a3b8" font-size="11">• Two-sample Kolmogorov-Smirnov (KS) test</text>
+    <text x="14" y="105" fill="#94a3b8" font-size="11">• Population Stability Index (PSI &gt; 0.20)</text>
+    <text x="14" y="125" fill="#94a3b8" font-size="11">• Wasserstein distance on continuous features</text>
+    <text x="14" y="155" fill="#f59e0b" font-size="11" font-weight="600">Output: Drift Score p-value &amp; PSI</text>
+  </g>
+
+  <!-- Signal 3: SHAP Feature Attribution -->
+  <g transform="translate(800, 175)" filter="url(#card-shadow)">
+    <rect width="340" height="180" rx="10" fill="#111827" stroke="#8b5cf6" stroke-width="1.2" />
+    <rect x="0" y="0" width="340" height="38" rx="10" fill="#1f2937" />
+    <rect x="12" y="10" width="18" height="18" rx="4" fill="url(#sig3-grad)" />
+    <text x="38" y="24" fill="#d8b4fe" font-size="13" font-weight="700">SIGNAL 3: SHAP Attribution</text>
+    <text x="14" y="65" fill="#e2e8f0" font-size="12" font-weight="600">Local Shapley Feature Contributions</text>
+    <text x="14" y="85" fill="#94a3b8" font-size="11">• TreeExplainer / KernelExplainer pass</text>
+    <text x="14" y="105" fill="#94a3b8" font-size="11">• Isolate top |SHAP| delta drivers in batch</text>
+    <text x="14" y="125" fill="#94a3b8" font-size="11">• Identifies which features altered output</text>
+    <text x="14" y="155" fill="#8b5cf6" font-size="11" font-weight="600">Output: Normalized SHAP Vector</text>
+  </g>
+
+  <!-- Signal 4: Bounded Counterfactuals (KEY DIFFERENTIATOR) -->
+  <g transform="translate(60, 380)" filter="url(#card-shadow)">
+    <rect width="340" height="180" rx="10" fill="#111827" stroke="#06b6d4" stroke-width="1.8" />
+    <rect x="0" y="0" width="340" height="38" rx="10" fill="#1f2937" />
+    <rect x="12" y="10" width="18" height="18" rx="4" fill="url(#sig4-grad)" />
+    <text x="38" y="24" fill="#67e8f9" font-size="13" font-weight="700">SIGNAL 4: Bounded Counterfactuals</text>
+    <text x="14" y="65" fill="#e2e8f0" font-size="12" font-weight="600">Causal Inversion Testing (Why vs Correlation)</text>
+    <text x="14" y="85" fill="#94a3b8" font-size="11">• Perturb top SHAP feature to baseline [μ ± 2σ]</text>
+    <text x="14" y="105" fill="#94a3b8" font-size="11">• Re-run model inference on inverted feature</text>
+    <text x="14" y="125" fill="#94a3b8" font-size="11">• Test if prediction restores to correct class</text>
+    <text x="14" y="155" fill="#06b6d4" font-size="11" font-weight="700">Output: Causal Flip Rate (Proves Root Cause)</text>
+  </g>
+
+  <!-- Signal 5: Interaction Effects -->
+  <g transform="translate(430, 380)" filter="url(#card-shadow)">
+    <rect width="340" height="180" rx="10" fill="#111827" stroke="#ec4899" stroke-width="1.2" />
+    <rect x="0" y="0" width="340" height="38" rx="10" fill="#1f2937" />
+    <rect x="12" y="10" width="18" height="18" rx="4" fill="url(#sig6-grad)" />
+    <text x="38" y="24" fill="#f472b6" font-size="13" font-weight="700">SIGNAL 5: Feature Interactions</text>
+    <text x="14" y="65" fill="#e2e8f0" font-size="12" font-weight="600">Joint Distribution Failures</text>
+    <text x="14" y="85" fill="#94a3b8" font-size="11">• Detect hidden 2nd-order multi-feature drift</text>
+    <text x="14" y="105" fill="#94a3b8" font-size="11">• Feature A normal + Feature B normal</text>
+    <text x="14" y="125" fill="#94a3b8" font-size="11">• BUT Joint (A × B) cross-product corrupted</text>
+    <text x="14" y="155" fill="#ec4899" font-size="11" font-weight="600">Output: Pairwise Interaction Residual</text>
+  </g>
+
+  <!-- Signal 6: Memory & Multi-Signal Fusion -->
+  <g transform="translate(800, 380)" filter="url(#card-shadow)">
+    <rect width="340" height="180" rx="10" fill="#111827" stroke="#10b981" stroke-width="1.5" />
+    <rect x="0" y="0" width="340" height="38" rx="10" fill="#1f2937" />
+    <rect x="12" y="10" width="18" height="18" rx="4" fill="url(#sig5-grad)" />
+    <text x="38" y="24" fill="#6ee7b7" font-size="13" font-weight="700">SIGNAL 6: Multi-Signal Fusion</text>
+    <text x="14" y="65" fill="#e2e8f0" font-size="12" font-weight="600">Weighted Bayesian Confidence Aggregator</text>
+    <text x="14" y="85" fill="#94a3b8" font-size="11">• Combines 5 signals + Pinecone RAG match</text>
+    <text x="14" y="105" fill="#94a3b8" font-size="11">• Calculates final calibrated confidence score</text>
+    <text x="14" y="125" fill="#94a3b8" font-size="11">• Assigns severity &amp; creates ranked causal list</text>
+    <text x="14" y="155" fill="#10b981" font-size="11" font-weight="700">Output: Root Cause + Confidence (e.g. 92%)</text>
+  </g>
+
+  <!-- Bottom Synthesis Banner -->
+  <g transform="translate(60, 580)" filter="url(#card-shadow)">
+    <rect width="1080" height="60" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.2" />
+    <text x="24" y="26" fill="#38bdf8" font-size="12" font-weight="700">LLM REASONING &amp; REMEDIATION GENERATION</text>
+    <text x="24" y="46" fill="#e2e8f0" font-size="12">Transfers multi-signal diagnostic payload to Gemini/GPT-4 → Generates root cause summary, affected cohort, and automated remediation code</text>
+  </g>
+</svg>

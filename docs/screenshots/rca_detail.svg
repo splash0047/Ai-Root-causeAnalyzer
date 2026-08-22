@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" width="100%" height="100%" style="background:#090d16; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <linearGradient id="detail-card-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#151d30" />
+      <stop offset="100%" stop-color="#0c1220" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Left Sidebar -->
+  <g transform="translate(0, 0)">
+    <rect width="220" height="700" fill="#0c1220" stroke="#1e293b" stroke-width="1" />
+    <g transform="translate(20, 25)">
+      <rect width="32" height="32" rx="8" fill="#3b82f6" />
+      <text x="10" y="21" fill="#fff" font-size="16">🔍</text>
+      <text x="42" y="16" fill="#f8fafc" font-size="14" font-weight="700">AI-RCA</text>
+      <text x="42" y="28" fill="#64748b" font-size="10">Observability Platform</text>
+    </g>
+    <g transform="translate(15, 80)">
+      <text x="35" y="24" fill="#94a3b8" font-size="13">📊 Dashboard</text>
+      <g transform="translate(0, 48)">
+        <rect width="190" height="38" rx="6" fill="#1e293b" stroke="#a855f7" stroke-width="1" />
+        <text x="35" y="24" fill="#c084fc" font-size="13" font-weight="600">🔬 RCA Detail View</text>
+      </g>
+      <g transform="translate(0, 96)">
+        <text x="35" y="24" fill="#94a3b8" font-size="13">⚡ Failure Simulator</text>
+      </g>
+      <g transform="translate(0, 144)">
+        <text x="35" y="24" fill="#94a3b8" font-size="13">🧪 Ablation Study</text>
+      </g>
+      <g transform="translate(0, 192)">
+        <text x="35" y="24" fill="#94a3b8" font-size="13">📈 Model Evaluation</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Top Title Bar -->
+  <g transform="translate(240, 25)">
+    <text x="0" y="20" fill="#f8fafc" font-size="20" font-weight="700">Causal Reasoning Tree &amp; Evidence Chain</text>
+    <text x="0" y="40" fill="#64748b" font-size="12">Incident ID: #INC-8921  |  Trigger: Accuracy drop from 86.4% → 64.2% (-22.2%)</text>
+  </g>
+
+  <!-- Main Detail View Cards -->
+  <g transform="translate(240, 80)">
+    <!-- Reasoning Chain Card (Top Left) -->
+    <g transform="translate(0, 0)" filter="url(#shadow)">
+      <rect width="580" height="360" rx="8" fill="url(#detail-card-grad)" stroke="#334155" />
+      <path d="M 0 8 C 0 3.58 3.58 0 8 0 L 572 0 C 576.42 0 580 3.58 580 8 L 580 40 L 0 40 Z" fill="#1e293b" />
+      <text x="20" y="26" fill="#f8fafc" font-size="13" font-weight="700">🌲 Multi-Signal Causal Reasoning Chain</text>
+
+      <!-- Step 1 in chain -->
+      <g transform="translate(20, 55)">
+        <circle cx="12" cy="14" r="10" fill="#ef4444" />
+        <text x="9" y="18" fill="#fff" font-size="11" font-weight="700">1</text>
+        <text x="32" y="16" fill="#fca5a5" font-size="12" font-weight="600">Distributional Covariate Shift Detected</text>
+        <text x="32" y="32" fill="#94a3b8" font-size="11">Feature `credit_score` KS-statistic D=0.412 (p &lt; 0.0001), PSI=0.384 (&gt; 0.25 Critical threshold)</text>
+      </g>
+
+      <!-- Step 2 in chain -->
+      <g transform="translate(20, 115)">
+        <circle cx="12" cy="14" r="10" fill="#8b5cf6" />
+        <text x="9" y="18" fill="#fff" font-size="11" font-weight="700">2</text>
+        <text x="32" y="16" fill="#d8b4fe" font-size="12" font-weight="600">SHAP Local Feature Attribution</text>
+        <text x="32" y="32" fill="#94a3b8" font-size="11">Mean |SHAP| magnitude on `credit_score` = 1.48 (ranked #1, 64% of prediction delta variance)</text>
+      </g>
+
+      <!-- Step 3 in chain -->
+      <g transform="translate(20, 175)">
+        <circle cx="12" cy="14" r="10" fill="#06b6d4" />
+        <text x="9" y="18" fill="#fff" font-size="11" font-weight="700">3</text>
+        <text x="32" y="16" fill="#67e8f9" font-size="12" font-weight="600">Bounded Counterfactual Inversion (Causal Verification)</text>
+        <text x="32" y="32" fill="#94a3b8" font-size="11">Perturbing `credit_score` to training baseline [680 ± 80] restores 88.0% of false predictions back to True</text>
+      </g>
+
+      <!-- Step 4 in chain -->
+      <g transform="translate(20, 235)">
+        <circle cx="12" cy="14" r="10" fill="#10b981" />
+        <text x="9" y="18" fill="#fff" font-size="11" font-weight="700">4</text>
+        <text x="32" y="16" fill="#6ee7b7" font-size="12" font-weight="600">Pinecone Vector Memory Match (RAG)</text>
+        <text x="32" y="32" fill="#94a3b8" font-size="11">Matched past incident #INC-4412 (94.8% cosine similarity) - Known upstream bureau schema bug</text>
+      </g>
+
+      <!-- Step 5: Final Score -->
+      <g transform="translate(20, 295)">
+        <rect width="540" height="45" rx="6" fill="#0f172a" stroke="#10b981" />
+        <text x="16" y="27" fill="#34d399" font-size="12" font-weight="700">✓ Final Calibrated Causal Confidence: 94.2%  (Uncertainty Margin: ±2.1%)</text>
+      </g>
+    </g>
+
+    <!-- Latency Breakdown & Confidence Weights (Top Right) -->
+    <g transform="translate(600, 0)" filter="url(#shadow)">
+      <rect width="320" height="360" rx="8" fill="url(#detail-card-grad)" stroke="#334155" />
+      <path d="M 0 8 C 0 3.58 3.58 0 8 0 L 312 0 C 316.42 0 320 3.58 320 8 L 320 40 L 0 40 Z" fill="#1e293b" />
+      <text x="20" y="26" fill="#f8fafc" font-size="13" font-weight="700">⏱️ Diagnostic Latency Breakdown</text>
+
+      <g transform="translate(20, 55)">
+        <text x="0" y="16" fill="#94a3b8" font-size="11">Data Integrity Check</text>
+        <rect x="0" y="24" width="280" height="8" rx="4" fill="#1e293b" />
+        <rect x="0" y="24" width="18" height="8" rx="4" fill="#38bdf8" />
+        <text x="220" y="16" fill="#38bdf8" font-size="10">12ms</text>
+
+        <text x="0" y="56" fill="#94a3b8" font-size="11">KS-Test &amp; PSI Drift Detector</text>
+        <rect x="0" y="64" width="280" height="8" rx="4" fill="#1e293b" />
+        <rect x="0" y="64" width="45" height="8" rx="4" fill="#f59e0b" />
+        <text x="220" y="56" fill="#f59e0b" font-size="10">42ms</text>
+
+        <text x="0" y="96" fill="#94a3b8" font-size="11">SHAP Attribution Pass</text>
+        <rect x="0" y="104" width="280" height="8" rx="4" fill="#1e293b" />
+        <rect x="0" y="104" width="98" height="8" rx="4" fill="#8b5cf6" />
+        <text x="220" y="96" fill="#8b5cf6" font-size="10">94ms</text>
+
+        <text x="0" y="136" fill="#94a3b8" font-size="11">Counterfactual Inversion</text>
+        <rect x="0" y="144" width="280" height="8" rx="4" fill="#1e293b" />
+        <rect x="0" y="144" width="112" height="8" rx="4" fill="#06b6d4" />
+        <text x="220" y="136" fill="#06b6d4" font-size="10">110ms</text>
+
+        <text x="0" y="176" fill="#94a3b8" font-size="11">Pinecone Vector RAG Query</text>
+        <rect x="0" y="184" width="280" height="8" rx="4" fill="#1e293b" />
+        <rect x="0" y="184" width="70" height="8" rx="4" fill="#10b981" />
+        <text x="220" y="176" fill="#10b981" font-size="10">68ms</text>
+
+        <text x="0" y="216" fill="#94a3b8" font-size="11">Gemini Diagnostic Synthesis</text>
+        <rect x="0" y="224" width="280" height="8" rx="4" fill="#1e293b" />
+        <rect x="0" y="224" width="55" height="8" rx="4" fill="#ec4899" />
+        <text x="220" y="216" fill="#ec4899" font-size="10">54ms (cached)</text>
+
+        <rect y="250" width="280" height="35" rx="6" fill="#0f172a" stroke="#334155" />
+        <text x="14" y="272" fill="#38bdf8" font-size="12" font-weight="700">Total Latency: 380 ms</text>
+      </g>
+    </g>
+
+    <!-- Bottom Remediation & Code Generator -->
+    <g transform="translate(0, 380)" filter="url(#shadow)">
+      <rect width="920" height="210" rx="8" fill="url(#detail-card-grad)" stroke="#334155" />
+      <path d="M 0 8 C 0 3.58 3.58 0 8 0 L 912 0 C 916.42 0 920 3.58 920 8 L 920 40 L 0 40 Z" fill="#1e293b" />
+      <text x="20" y="26" fill="#f8fafc" font-size="13" font-weight="700">💡 Automated Actionable Remediation &amp; Mitigation Code</text>
+
+      <g transform="translate(20, 55)">
+        <text x="0" y="15" fill="#38bdf8" font-size="11" font-weight="600">PRESCRIBED REMEDIATION PLAN:</text>
+        <text x="0" y="35" fill="#e2e8f0" font-size="11">1. Hotfix: Apply bounded imputation clamping to `credit_score` upstream to prevent truncation at 400.</text>
+        <text x="0" y="55" fill="#e2e8f0" font-size="11">2. Pipeline: Validate third-party API payload formatting for credit score scale (VantageScore vs FICO 8).</text>
+        <text x="0" y="75" fill="#e2e8f0" font-size="11">3. Model: Trigger automated retraining pipeline `dags/retrain_credit_risk.py` with expanded distribution.</text>
+
+        <rect y="95" width="880" height="45" rx="6" fill="#0f172a" stroke="#334155" />
+        <text x="14" y="122" fill="#a5b4fc" font-size="11" font-family="monospace">curl -X POST http://api.internal/v1/pipeline/quarantine --data '{"feature": "credit_score", "min": 300, "max": 850}'</text>
+      </g>
+    </g>
+  </g>
+</svg>
