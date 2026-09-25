@@ -83,17 +83,7 @@ class VectorMemory:
                 ),
             }
 
-            # Upsert with integrated inference (Pinecone embeds the text)
-            self._index.upsert(
-                vectors=[{
-                    "id": record_id,
-                    "metadata": metadata,
-                    "values": [],  # Will be populated by integrated inference
-                }],
-                namespace=self.namespace,
-            )
-
-            # Also upsert via the records API for integrated inference
+            # An integrated-inference index embeds the text via upsert_records.
             self._upsert_with_inference(record_id, diagnosis_text, metadata)
 
             print(f"[VectorMemory] Stored case: {record_id}")
@@ -178,8 +168,8 @@ class VectorMemory:
 
         # Top features
         for feat in rca_result.get("ranked_features", [])[:3]:
-            causal = "causally confirmed" if feat.get("causality_confirmed") else "statistical"
-            parts.append(f"Feature: {feat['feature']} (impact: {feat['impact']:.4f}, {causal})")
+            sensitivity = "model-sensitive" if feat.get("model_sensitivity_detected") else "statistical"
+            parts.append(f"Feature: {feat['feature']} (impact: {feat['impact']:.4f}, {sensitivity})")
 
         # Drift info
         drifted = drift_report.get("drifted_features", [])
@@ -191,24 +181,16 @@ class VectorMemory:
 
     def _upsert_with_inference(self, record_id: str, text: str, metadata: Dict):
         """Upsert using Pinecone's integrated inference for embedding."""
-        try:
-            from pinecone import Pinecone
-            pc = Pinecone(api_key=self.api_key)
-            idx = pc.Index(self.index_name)
+        from pinecone import Pinecone
+        pc = Pinecone(api_key=self.api_key)
+        idx = pc.Index(self.index_name)
 
-            # Use the upsert_records method for integrated inference
-            record = {
-                "_id": record_id,
-                "diagnosis_text": text,  # This is the field mapped for embedding
-                **{k: v for k, v in metadata.items()},
-            }
-
-            idx.upsert_records(
-                namespace=self.namespace,
-                records=[record],
-            )
-        except Exception as e:
-            print(f"[VectorMemory] Inference upsert fallback: {e}")
+        record = {
+            "_id": record_id,
+            "diagnosis_text": text,  # This is the field mapped for embedding
+            **metadata,
+        }
+        idx.upsert_records(namespace=self.namespace, records=[record])
 
     def _search_with_inference(self, query_text: str, top_k: int) -> List[Dict]:
         """Search using Pinecone's integrated inference for query embedding."""

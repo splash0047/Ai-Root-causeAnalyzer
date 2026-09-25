@@ -9,11 +9,18 @@ export default function RCAHistory({ onViewDetail }) {
   const [viewMode, setViewMode] = useState('all'); // 'all' | 'failures'
 
   useEffect(() => {
-    loadHistory();
+    let active = true;
+    api.getRCAHistory(limit, severity || null)
+      .then(data => {
+        if (active) { setHistory(data.results || []); setLoading(false); }
+      })
+      .catch(e => {
+        if (active) { console.error('History load error:', e); setLoading(false); }
+      });
+    return () => { active = false; };
   }, [severity, limit]);
 
   async function loadHistory() {
-    setLoading(true);
     try {
       const data = await api.getRCAHistory(limit, severity || null);
       setHistory(data.results || []);

@@ -1,7 +1,6 @@
 """
-AI Root Cause Analyzer — Comprehensive Test Suite
-Tests all 8 API endpoints with structured assertions.
-Run with: py -3.13 -m pytest tests/test_api.py -v
+AI Root Cause Analyzer — API smoke and validation tests.
+Run from backend with: python -m pytest tests/ -v
 """
 import pytest
 import sys
@@ -155,7 +154,7 @@ class TestSimulation:
             "failure_type": "invalid_type",
             "n_samples": 100,
         })
-        assert r.status_code == 400
+        assert r.status_code == 422
 
     def test_simulation_without_rca(self):
         r = client.post("/simulate", json={
@@ -309,7 +308,40 @@ class TestRCA:
             "records": [{"unknown_col": 123}],
             "mode": "lightweight",
         })
-        assert r.status_code == 400
+        assert r.status_code == 422
+
+    def test_partial_features_and_mismatched_labels_fail_cleanly(self):
+        bad_feature = client.post("/rca", json={"records": [{"credit_score": 700}]})
+        assert bad_feature.status_code == 422
+        bad_labels = client.post("/rca", json={
+            "records": self._sample_records(), "actuals": [1],
+        })
+        assert bad_labels.status_code == 422
+
+    def test_batch_limit_and_mode_are_validated(self):
+        record = self._sample_records()[0]
+        assert client.post("/rca", json={"records": [record] * 1001}).status_code == 422
+        assert client.post("/rca", json={"records": [record], "mode": "unsupported"}).status_code == 422
+
+    def test_fix_comparison_uses_labels_only_when_supplied(self):
+        record = self._sample_records()[0]
+        response = client.post("/simulate/fix", json={
+            "records": [record], "actuals": [0], "fix_type": "impute", "target_feature": "credit_score",
+        })
+        assert response.status_code == 200
+        assert "after_accuracy" in response.json()
+        assert "estimated_new_accuracy" not in response.json()
+        unlabeled = client.post("/simulate/fix", json={
+            "records": [record], "fix_type": "drop", "target_feature": "credit_score",
+        })
+        assert unlabeled.status_code == 200
+        assert "after_accuracy" not in unlabeled.json()
+
+    def test_evaluation_does_not_invent_unmeasured_metrics(self):
+        response = client.get("/eval/metrics/eval")
+        assert response.status_code == 200
+        assert response.json()["metrics"]["avg_latency_ms"] is None
+        assert response.json()["metrics"]["false_positive_rate"] is None
 
 
 # ═══════════════════════════════════════════════════════════
@@ -362,6 +394,12 @@ class TestAblation:
         data = r.json()
         assert "configs" in data
         assert len(data["configs"]) == 4
+        assert [c["components"] for c in data["configs"]] == [
+            {"use_shap": False, "use_counterfactual": False, "use_interactions": False},
+            {"use_shap": True, "use_counterfactual": False, "use_interactions": False},
+            {"use_shap": True, "use_counterfactual": True, "use_interactions": False},
+            {"use_shap": True, "use_counterfactual": True, "use_interactions": True},
+        ]
 
     def test_ablation_has_summary(self):
         r = client.post("/ablation?n_samples=50")

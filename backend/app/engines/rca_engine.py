@@ -1,7 +1,7 @@
 """
 AI Root Cause Analyzer - RCA Decision Engine
 Advanced multi-signal root cause analysis with:
-- Bounded counterfactual causality testing
+- Bounded model-sensitivity testing
 - Feature interaction detection (top-k bounded)
 - Normalized confidence scoring
 - Uncertainty handling
@@ -17,7 +17,6 @@ from typing import Dict, Any, List, Optional
 from pathlib import Path
 import json
 import time
-import time
 
 from app.config import settings
 
@@ -25,7 +24,7 @@ from app.config import settings
 class RCAEngine:
     """
     Core Root Cause Analysis engine implementing multi-signal
-    diagnostic reasoning with bounded counterfactual validation.
+    diagnostic reasoning with bounded feature substitutions.
     """
 
     def __init__(self):
@@ -62,7 +61,10 @@ class RCAEngine:
                 predictions: np.ndarray,
                 actuals: Optional[np.ndarray] = None,
                 mode: str = "deep",
-                memory_match_score: float = 0.0) -> Dict[str, Any]:
+                memory_match_score: float = 0.0,
+                use_shap: Optional[bool] = None,
+                use_counterfactual: Optional[bool] = None,
+                use_interactions: Optional[bool] = None) -> Dict[str, Any]:
         """
         Run the full RCA diagnostic pipeline.
 
@@ -78,6 +80,11 @@ class RCAEngine:
         Returns:
             Comprehensive RCA result with ranked causes, confidence, and reasoning chain.
         """
+        if mode not in ("lightweight", "deep"):
+            raise ValueError("mode must be 'lightweight' or 'deep'")
+        use_shap = mode == "deep" if use_shap is None else use_shap
+        use_counterfactual = mode == "deep" if use_counterfactual is None else use_counterfactual
+        use_interactions = mode == "deep" if use_interactions is None else use_interactions
         reasoning_chain = []
         ranked_causes = []
         latency_breakdown = {}
@@ -116,7 +123,7 @@ class RCAEngine:
         # ─── Step 4: SHAP Analysis (Deep mode only) ───────
         t0 = time.perf_counter()
         shap_signal = {"score": 0, "top_features": [], "summary": "Skipped (lightweight mode)"}
-        if mode == "deep" and self.model is not None:
+        if use_shap and self.model is not None:
             shap_signal = self._analyze_shap(live_data)
             reasoning_chain.append({
                 "step": "SHAP Feature Impact",
@@ -126,14 +133,14 @@ class RCAEngine:
             })
         latency_breakdown["SHAP"] = round((time.perf_counter() - t0) * 1000, 2)
 
-        # ─── Step 5: Counterfactual Causality (Deep mode) ──
+        # ─── Step 5: Feature substitution (Deep mode) ──────
         t0 = time.perf_counter()
         counterfactual_signal = {"validated_causes": [], "summary": "Skipped (lightweight mode)"}
-        if mode == "deep" and self.model is not None:
+        if use_counterfactual and self.model is not None:
             suspect_features = self._get_suspect_features(drift_signal, shap_signal)
             counterfactual_signal = self._run_counterfactuals(live_data, predictions, suspect_features)
             reasoning_chain.append({
-                "step": "Counterfactual Validation",
+                "step": "Model Sensitivity Test",
                 "result": counterfactual_signal["summary"],
                 "validated_causes": counterfactual_signal["validated_causes"],
             })
@@ -142,7 +149,7 @@ class RCAEngine:
         # ─── Step 6: Feature Interaction Testing (Deep) ────
         t0 = time.perf_counter()
         interaction_signal = {"interactions": [], "summary": "Skipped (lightweight mode)"}
-        if mode == "deep" and self.model is not None:
+        if use_interactions and self.model is not None:
             interaction_signal = self._test_interactions(live_data, predictions, shap_signal)
             reasoning_chain.append({
                 "step": "Interaction Testing",
@@ -305,7 +312,7 @@ class RCAEngine:
         feature_data = data[self.feature_cols].copy() if self.feature_cols else data.copy()
         validated = []
 
-        # Sample failed predictions
+        # Analyze positive predictions; this measures model sensitivity, not causality.
         failed_mask = predictions > 0.5  # Predicted default
         failed_indices = np.where(failed_mask)[0]
         if len(failed_indices) == 0:
@@ -337,10 +344,10 @@ class RCAEngine:
                     "flipped_count": flipped,
                     "total_tested": len(sample_idx),
                     "baseline_value_used": round(baseline_value, 4),
-                    "causality_confirmed": True,
+                    "model_sensitivity_detected": True,
                 })
 
-        summary = f"Validated {len(validated)} causal features out of {len(suspect_features)} suspects"
+        summary = f"Found {len(validated)} model-sensitive features out of {len(suspect_features)} suspects"
         return {"validated_causes": validated, "summary": summary}
 
     def _test_interactions(self, data: pd.DataFrame,
@@ -410,7 +417,7 @@ class RCAEngine:
         has_drift = drift["score"] > 0.2
         has_perf_drop = perf["score"] > 0.2
         has_interaction = len(interaction.get("interactions", [])) > 0
-        has_causal = len(counterfactual.get("validated_causes", [])) > 0
+        has_sensitive = len(counterfactual.get("validated_causes", [])) > 0
 
         # Multi-signal reasoning (not IF-ELSE)
         if has_integrity_issues and has_perf_drop:
@@ -418,11 +425,11 @@ class RCAEngine:
                 "root_cause": "Data Integrity Issue Causing Model Failure",
                 "detail": f"Data quality problems ({integrity['summary']}) are degrading predictions.",
             }
-        elif has_drift and has_perf_drop and has_causal:
-            top_causal = counterfactual["validated_causes"][0]["feature"] if counterfactual["validated_causes"] else "unknown"
+        elif has_drift and has_perf_drop and has_sensitive:
+            top_sensitive = counterfactual["validated_causes"][0]["feature"]
             return {
-                "root_cause": "Data Drift Causing Model Failure",
-                "detail": f"Feature '{top_causal}' has drifted and causally confirmed to flip predictions.",
+                "root_cause": "Data Drift Associated With Model Failure",
+                "detail": f"Feature '{top_sensitive}' drifted; replacing it with a training median changed model predictions. Real-world causality is unverified.",
             }
         elif has_interaction and has_perf_drop:
             pair = interaction["interactions"][0]["features"]
@@ -497,13 +504,14 @@ class RCAEngine:
         """Build ranked list of root causes sorted by impact."""
         ranked = []
 
-        # From counterfactual validated features
+        # From model-sensitive features
         for cause in counterfactual.get("validated_causes", []):
             ranked.append({
                 "feature": cause["feature"],
                 "impact": cause["flip_rate"],
                 "source": "counterfactual",
-                "causality_confirmed": True,
+                "causality_confirmed": False,
+                "model_sensitivity_detected": True,
             })
 
         # From SHAP (non-duplicated)
@@ -514,6 +522,17 @@ class RCAEngine:
                     "feature": feat["feature"],
                     "impact": feat["shap_impact"],
                     "source": "shap",
+                    "causality_confirmed": False,
+                })
+
+        # Drift-only configuration still ranks the observed shifted features.
+        existing = {r["feature"] for r in ranked}
+        for feature, magnitude in drift.get("per_feature_magnitude", {}).items():
+            if feature not in existing:
+                ranked.append({
+                    "feature": feature,
+                    "impact": float(magnitude),
+                    "source": "drift",
                     "causality_confirmed": False,
                 })
 

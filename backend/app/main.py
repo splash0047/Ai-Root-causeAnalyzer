@@ -3,10 +3,10 @@ AI Root Cause Analyzer - FastAPI Main Application
 Provides REST API endpoints for data ingestion, RCA execution,
 metrics monitoring, RCA history retrieval, and feedback.
 """
-from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, model_validator
+from typing import List, Optional, Dict, Any, Literal
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import numpy as np
@@ -14,6 +14,7 @@ import pandas as pd
 import joblib
 import json
 import time
+import math
 
 from app.config import settings
 from app.database import get_db, PredictionLog, RCALog, WeightEvolutionLog, Base, engine
@@ -35,8 +36,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -85,8 +86,6 @@ except Exception as e:
 
 # ─── Numpy-safe serialization helper ──────────────────────
 
-import math
-
 def _safe(obj):
     """Recursively convert numpy types to Python native for JSON serialization, handling NaNs."""
     if isinstance(obj, dict):
@@ -106,10 +105,27 @@ def _safe(obj):
 
 # ─── Pydantic Schemas ─────────────────────────────────────
 
-class IngestRequest(BaseModel):
+class FeatureBatch(BaseModel):
+    """Bound work and validate the model's exact numeric feature contract."""
+    records: List[Dict[str, Optional[float]]] = Field(..., min_length=1, max_length=1000)
+    actuals: Optional[List[Literal[0, 1]]] = None
+
+    @model_validator(mode="after")
+    def validate_batch(self):
+        expected = set(rca_engine.feature_cols)
+        for record in self.records:
+            if set(record) != expected:
+                raise ValueError(f"Each record must contain exactly: {sorted(expected)}")
+            if any(value is not None and (isinstance(value, bool) or not math.isfinite(value))
+                   for value in record.values()):
+                raise ValueError("Features must be finite numbers or null")
+        if self.actuals is not None and len(self.actuals) != len(self.records):
+            raise ValueError("actuals must have exactly one label per record")
+        return self
+
+
+class IngestRequest(FeatureBatch):
     """Schema for data ingestion endpoint."""
-    records: List[Dict[str, Any]] = Field(..., description="List of feature dictionaries")
-    actuals: Optional[List[float]] = Field(None, description="Ground truth labels if available")
     batch_id: Optional[str] = Field(None, description="Batch identifier")
 
 
@@ -120,34 +136,37 @@ class IngestResponse(BaseModel):
     anomaly_flags: int
 
 
-class RCARequest(BaseModel):
+class RCARequest(FeatureBatch):
     """Schema for RCA execution endpoint."""
-    records: List[Dict[str, Any]] = Field(..., description="Dataset snapshot for RCA")
-    actuals: Optional[List[float]] = Field(None, description="Ground truth labels")
-    mode: str = Field("deep", description="RCA mode: 'lightweight' or 'deep'")
+    mode: Literal["lightweight", "deep"] = "deep"
 
 
 class FeedbackRequest(BaseModel):
     """Schema for user feedback on RCA results."""
     rca_id: int = Field(..., description="ID of the RCA log entry")
-    feedback: str = Field(..., description="'accurate' or 'rejected'")
+    feedback: Literal["accurate", "rejected"]
     notes: Optional[str] = Field(None, description="Optional correction notes")
 
 
 class SimulationRequest(BaseModel):
     """Schema for triggering a controlled failure simulation."""
-    failure_type: str = Field(..., description="Type: noise, drop, skew, interaction, concept, missing")
+    failure_type: Literal["noise", "drop", "skew", "interaction", "concept", "missing"]
     feature: Optional[str] = Field(None, description="Target feature(s)")
     feature2: Optional[str] = Field(None, description="Second feature for interaction tests")
-    n_samples: int = Field(500, description="Number of samples")
-    noise_factor: float = Field(3.0, description="Noise magnitude")
+    n_samples: int = Field(500, ge=10, le=1000)
+    noise_factor: float = Field(3.0, ge=0, le=10)
     run_rca: bool = Field(True, description="Automatically run RCA on simulated data")
 
-class FixSimulationRequest(BaseModel):
-    """Schema for fix impact simulation."""
-    dataset_records: List[Dict[str, Any]] = Field(..., description="The dataset with the failure")
-    fix_type: str = Field(..., description="'impute', 'drop', 'retrain'")
-    target_feature: str = Field(..., description="Feature to apply fix to")
+class FixSimulationRequest(FeatureBatch):
+    """Compare model outputs before and after a local feature substitution."""
+    fix_type: Literal["impute", "drop"]
+    target_feature: str
+
+    @model_validator(mode="after")
+    def validate_target(self):
+        if self.target_feature not in rca_engine.feature_cols:
+            raise ValueError("target_feature must be a model feature")
+        return self
 
 
 # ─── Endpoints ─────────────────────────────────────────────
@@ -174,13 +193,8 @@ async def ingest_data(request: IngestRequest, db: Session = Depends(get_db)):
     df = pd.DataFrame(request.records)
     feature_cols = rca_engine.feature_cols
 
-    # Ensure features exist
-    available_cols = [c for c in feature_cols if c in df.columns]
-    if not available_cols:
-        raise HTTPException(status_code=400, detail=f"No expected features found. Expected: {feature_cols}")
-
     # Generate predictions
-    X = df[available_cols].fillna(0)
+    X = df[feature_cols].fillna(0)
     predictions = model.predict_proba(X)[:, 1]
 
     # Adaptive anomaly scoring (higher = more anomalous)
@@ -189,7 +203,7 @@ async def ingest_data(request: IngestRequest, db: Session = Depends(get_db)):
 
     anomaly_flags = 0
     for i, record in enumerate(request.records):
-        actual = request.actuals[i] if request.actuals and i < len(request.actuals) else None
+        actual = request.actuals[i] if request.actuals is not None else None
         a_score = float(anomaly_scores[i])
 
         if a_score > 0.3:
@@ -226,20 +240,15 @@ async def run_rca(request: RCARequest, db: Session = Depends(get_db)):
 
     df = pd.DataFrame(request.records)
     feature_cols = rca_engine.feature_cols
-    available_cols = [c for c in feature_cols if c in df.columns]
-
-    if not available_cols:
-        raise HTTPException(status_code=400, detail=f"No expected features found.")
-
-    X = df[available_cols].fillna(0)
+    X = df[feature_cols].fillna(0)
     predictions = model.predict_proba(X)[:, 1]
-    actuals = np.array(request.actuals) if request.actuals else None
+    actuals = np.array(request.actuals) if request.actuals is not None else None
 
     # Step 1: Integrity Check
-    integrity_report = integrity_checker.check(df[available_cols])
+    integrity_report = integrity_checker.check(df[feature_cols])
 
     # Step 2: Drift Detection
-    drift_report = drift_detector.detect(df[available_cols], predictions, actuals)
+    drift_report = drift_detector.detect(df[feature_cols], predictions, actuals)
 
     # Step 3: Vector Memory Search (find similar past cases)
     memory_result = vector_memory.search_similar(rca_result={}, drift_report=drift_report)
@@ -456,6 +465,8 @@ async def run_simulation(request: SimulationRequest, db: Session = Depends(get_d
             "target_feature": request.feature,
             "n_samples": len(data),
             "data_preview": data.head(5).to_dict(orient="records"),
+            "dataset_records": data[rca_engine.feature_cols].to_dict(orient="records"),
+            "actuals": data["default"].astype(int).tolist() if "default" in data else None,
         }
 
         # Optionally run RCA on simulated data
@@ -492,75 +503,45 @@ async def run_simulation(request: SimulationRequest, db: Session = Depends(get_d
 
 
 @app.post("/ablation")
-async def run_ablation(n_samples: int = 500):
+async def run_ablation(n_samples: int = Query(500, ge=10, le=1000)):
     """
     Run a comprehensive ablation study across 12 failure scenarios
-    and 4 RCA configurations. Proves each component's incremental value.
+    and 4 distinct RCA configurations. This evaluates synthetic injections only.
     """
     from app.engines.ablation_runner import AblationRunner
     runner = AblationRunner()
     results = runner.run(n_samples=n_samples)
     return results
 
-# --- Evaluation Cache ---
-from cachetools import TTLCache
-eval_cache = TTLCache(maxsize=1, ttl=300)
-
 @app.get("/eval/metrics/eval")
 async def get_evaluation_metrics(db: Session = Depends(get_db)):
     """
-    Returns robust, cached system metrics combining synthetic ablation
-    baselines with real-world feedback adjustments.
+    Return reviewed feedback agreement, with unavailable metrics left null.
     """
-    if "eval_metrics" in eval_cache:
-        return eval_cache["eval_metrics"]
-
-    # 1. Base Metrics (simulated via Ablation data concept)
-    base_accuracy = 0.92
-    base_latency_ms = 450
-    base_fpr = 0.02
-
-    # 2. Real-world feedback adjustment
-    logs = db.query(RCALog).filter(RCALog.user_feedback.isnot(None)).all()
-    total_feedback = len(logs)
-    rejected_count = sum(1 for log in logs if log.user_feedback == "rejected")
-    
-    adjusted_accuracy = base_accuracy
-    if total_feedback > 0:
-        penalty = (rejected_count / total_feedback) * 0.1
-        adjusted_accuracy = max(0.0, base_accuracy - penalty)
-
-    # 3. Confidence Calibration Curve
-    all_logs = db.query(RCALog).all()
-    buckets = {i/10: {"total": 0, "correct": 0} for i in range(10)}
-    for log in all_logs:
-        bucket = round(log.confidence_score, 1)
-        if bucket >= 1.0: bucket = 0.9
-        buckets[bucket]["total"] += 1
-        if log.user_feedback != "rejected":
-            buckets[bucket]["correct"] += 1
-            
-    calibration_curve = []
-    for k, v in sorted(buckets.items()):
-        actual = v["correct"] / v["total"] if v["total"] > 0 else k
-        calibration_curve.append({
-            "confidence_bucket": k,
-            "predicted_confidence": k + 0.05,
-            "actual_accuracy": actual,
-            "sample_size": v["total"]
-        })
-
-    metrics = {
-        "rca_accuracy": round(adjusted_accuracy, 4),
-        "avg_latency_ms": base_latency_ms,
-        "false_positive_rate": round(base_fpr, 4),
-        "time_saved_estimate": "Manual: ~2 hrs vs RCA: ~30 secs",
-        "total_rca_runs": len(all_logs),
-        "calibration_curve": calibration_curve
+    logs = db.query(RCALog).all()
+    reviewed = [log for log in logs if log.user_feedback in ("accurate", "rejected")]
+    buckets = {i: [] for i in range(10)}
+    for log in reviewed:
+        bucket = min(9, max(0, int(log.confidence_score * 10)))
+        buckets[bucket].append(log)
+    curve = [
+        {"expected_accuracy": round(sum(log.confidence_score for log in items) / len(items), 4),
+         "actual_accuracy": round(sum(log.user_feedback == "accurate" for log in items) / len(items), 4),
+         "sample_size": len(items)}
+        for items in buckets.values() if items
+    ]
+    return {
+        "metrics": {
+            "reviewed_agreement_rate": round(sum(log.user_feedback == "accurate" for log in reviewed) / len(reviewed), 4) if reviewed else None,
+            "avg_confidence": round(sum(log.confidence_score for log in logs) / len(logs), 4) if logs else None,
+            "avg_latency_ms": None,
+            "false_positive_rate": None,
+            "total_rca_runs": len(logs),
+            "reviewed_count": len(reviewed),
+        },
+        "calibration_curve": curve,
+        "scope": "User feedback agreement is not verified diagnostic accuracy. Latency and false-positive rate require labeled measurements.",
     }
-    
-    eval_cache["eval_metrics"] = metrics
-    return metrics
 
 
 @app.post("/simulate/fix")
@@ -571,24 +552,11 @@ async def simulate_fix_impact(request: FixSimulationRequest):
     if model is None:
         raise HTTPException(status_code=503, detail="Model not loaded.")
         
-    df = pd.DataFrame(request.dataset_records)
+    df = pd.DataFrame(request.records)
     feature_cols = rca_engine.feature_cols
-    available_cols = [c for c in feature_cols if c in df.columns]
-    X = df[available_cols].fillna(0)
+    X = df[feature_cols].fillna(0)
     
     original_preds = model.predict_proba(X)[:, 1]
-    baseline_acc = rca_engine.training_stats.get("accuracy", 0.85)
-    
-    actuals = (original_preds > 0.5).astype(int) 
-    
-    if request.fix_type == "retrain":
-        return {
-            "fix_category": "Simulated",
-            "fix_applied": "Model Retraining",
-            "message": f"Expected to recover 85-95% of baseline accuracy ({baseline_acc:.2f}).",
-            "estimated_new_accuracy": min(1.0, baseline_acc * 0.9)
-        }
-        
     modified_df = df.copy()
     if request.fix_type == "impute":
         median_val = rca_engine.training_stats.get("feature_stats", {}).get(request.target_feature, {}).get("median", 0)
@@ -596,18 +564,24 @@ async def simulate_fix_impact(request: FixSimulationRequest):
     elif request.fix_type == "drop":
         modified_df[request.target_feature] = 0
         
-    new_X = modified_df[available_cols].fillna(0)
+    new_X = modified_df[feature_cols].fillna(0)
     new_preds = model.predict_proba(new_X)[:, 1]
     
-    from sklearn.metrics import accuracy_score
-    new_acc = accuracy_score(actuals, (new_preds > 0.5).astype(int))
-    
-    return {
+    original_labels = original_preds > 0.5
+    new_labels = new_preds > 0.5
+    result = {
         "fix_category": "Local",
         "fix_applied": f"{request.fix_type.capitalize()} on {request.target_feature}",
-        "message": "Fix applied mathematically.",
-        "exact_new_accuracy": round(new_acc, 4)
+        "message": "Model predictions under a feature substitution; no real-world recovery is implied.",
+        "prediction_flip_rate": round(float(np.mean(original_labels != new_labels)), 4),
+        "before_positive_rate": round(float(np.mean(original_labels)), 4),
+        "after_positive_rate": round(float(np.mean(new_labels)), 4),
     }
+    if request.actuals is not None:
+        from sklearn.metrics import accuracy_score
+        result["before_accuracy"] = round(accuracy_score(request.actuals, original_labels), 4)
+        result["after_accuracy"] = round(accuracy_score(request.actuals, new_labels), 4)
+    return result
 
 
 @app.post("/benchmark/demo")
@@ -659,7 +633,7 @@ async def run_demo_benchmark():
 @app.get("/health")
 async def health_check():
     return {
-        "status": "healthy",
+        "status": "healthy" if model is not None else "degraded",
         "model_loaded": model is not None,
         "rca_logic_version": settings.RCA_LOGIC_VERSION,
         "model_version": settings.MODEL_VERSION,

@@ -1,18 +1,12 @@
 """
 AI Root Cause Analyzer — Ablation Study Runner
-Systematically evaluates the incremental value of each RCA component
-by running controlled simulations across 4 configurations:
-  1. Baseline (Drift Only)
-  2. + SHAP Feature Importance
-  3. + Counterfactual Validation
-  4. + Full Pipeline (Memory + LLM)
+Compares four diagnostic configurations on deterministic synthetic injections.
+This is a smoke benchmark, not a production accuracy evaluation.
 """
 import time
-import json
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, List
-from pathlib import Path
 
 from app.config import settings
 from app.engines.integrity_checker import DataIntegrityChecker
@@ -64,13 +58,14 @@ class AblationRunner:
             return {"error": "Model not loaded"}
 
         configs = [
-            {"name": "Drift Only", "mode": "lightweight", "use_shap": False, "use_counterfactual": False},
-            {"name": "+ SHAP", "mode": "deep_shap_only", "use_shap": True, "use_counterfactual": False},
-            {"name": "+ Counterfactuals", "mode": "deep", "use_shap": True, "use_counterfactual": True},
-            {"name": "Full Pipeline", "mode": "deep", "use_shap": True, "use_counterfactual": True},
+            {"name": "Integrity + Drift", "use_shap": False, "use_counterfactual": False, "use_interactions": False},
+            {"name": "+ SHAP", "use_shap": True, "use_counterfactual": False, "use_interactions": False},
+            {"name": "+ Model Sensitivity", "use_shap": True, "use_counterfactual": True, "use_interactions": False},
+            {"name": "+ Interactions", "use_shap": True, "use_counterfactual": True, "use_interactions": True},
         ]
 
-        results = {"configs": [], "summary": {}, "scenarios": len(self.FAILURE_SCENARIOS)}
+        results = {"configs": [], "summary": {}, "scenarios": len(self.FAILURE_SCENARIOS),
+                   "scope": "synthetic injections on the training generator's data; top-three feature hit rate"}
 
         for config in configs:
             config_result = self._run_config(config, n_samples)
@@ -104,17 +99,18 @@ class AblationRunner:
                 integrity = self.integrity_checker.check(data[available])
                 drift = self.drift_detector.detect(data[available], predictions, actuals)
 
-                start = time.time()
-
-                mode = "lightweight" if config["mode"] == "lightweight" else "deep"
+                start = time.perf_counter()
                 rca = self.rca_engine.analyze(
                     live_data=data, drift_report=drift,
                     integrity_report=integrity,
                     predictions=predictions, actuals=actuals,
-                    mode=mode,
+                    mode="deep",
+                    use_shap=config["use_shap"],
+                    use_counterfactual=config["use_counterfactual"],
+                    use_interactions=config["use_interactions"],
                 )
 
-                elapsed_ms = round((time.time() - start) * 1000, 1)
+                elapsed_ms = round((time.perf_counter() - start) * 1000, 1)
                 times.append(elapsed_ms)
 
                 # Check if the expected feature is in the top-3 ranked
@@ -145,7 +141,7 @@ class AblationRunner:
 
         return {
             "name": config["name"],
-            "mode": config["mode"],
+            "components": {key: config[key] for key in ("use_shap", "use_counterfactual", "use_interactions")},
             "accuracy": round(accuracy, 4),
             "correct": correct,
             "total": total,

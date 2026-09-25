@@ -49,7 +49,29 @@ jobs:
     - name: Install dependencies
       working-directory: ./frontend
       run: npm ci
+
+    - name: Lint React App
+      working-directory: ./frontend
+      run: npm run lint
       
     - name: Build React App
       working-directory: ./frontend
       run: npm run build
+
+  compose-smoke:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build and launch the documented demo
+      run: docker compose up -d --build
+    - name: Verify trained model is available
+      run: |
+        for attempt in $(seq 1 30); do
+          if curl --fail --silent http://localhost:8000/health > /tmp/rca-health.json; then break; fi
+          sleep 2
+        done
+        python -c 'import json; result=json.load(open("/tmp/rca-health.json")); assert result["model_loaded"] and result["status"] == "healthy", result'
+        curl --fail --silent http://localhost:5173/ > /dev/null
+    - name: Stop the demo
+      if: always()
+      run: docker compose down -v

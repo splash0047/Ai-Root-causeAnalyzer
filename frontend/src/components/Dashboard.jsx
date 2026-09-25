@@ -8,11 +8,18 @@ export default function Dashboard({ onViewRCA }) {
   const [window, setWindow] = useState(24);
 
   useEffect(() => {
-    loadData();
+    let active = true;
+    Promise.all([api.getMetrics(window), api.getRCAHistory(5)])
+      .then(([m, h]) => {
+        if (active) { setMetrics(m); setHistory(h.results || []); setLoading(false); }
+      })
+      .catch(e => {
+        if (active) { console.error('Dashboard load error:', e); setLoading(false); }
+      });
+    return () => { active = false; };
   }, [window]);
 
   async function loadData() {
-    setLoading(true);
     try {
       const [m, h] = await Promise.all([
         api.getMetrics(window),
@@ -39,14 +46,14 @@ export default function Dashboard({ onViewRCA }) {
     <div className="animate-in">
       <div className="page-header">
         <h1 className="page-title">Dashboard</h1>
-        <p className="page-subtitle">Real-time model performance & RCA insights</p>
+        <p className="page-subtitle">Metrics from ingested batches with supplied labels</p>
       </div>
 
       {/* ── Metrics Cards ── */}
       <div className="metrics-grid">
         <div className="cyber-card stat-card accent-blue">
           <div className="stat-label">Accuracy</div>
-          <div className="stat-value">{metrics?.accuracy ? `${(metrics.accuracy * 100).toFixed(1)}%` : '—'}</div>
+          <div className="stat-value">{metrics?.accuracy != null ? `${(metrics.accuracy * 100).toFixed(1)}%` : '—'}</div>
           <div style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             Baseline: {metrics?.baseline_accuracy ? `${(metrics.baseline_accuracy * 100).toFixed(1)}%` : '—'}
           </div>
@@ -62,7 +69,7 @@ export default function Dashboard({ onViewRCA }) {
 
         <div className="cyber-card stat-card accent-amber">
           <div className="stat-label">Accuracy Drop</div>
-          <div className="stat-value amber">{metrics?.accuracy_drop ? `${(metrics.accuracy_drop * 100).toFixed(1)}%` : '0%'}</div>
+          <div className="stat-value amber">{metrics?.accuracy_drop != null ? `${(metrics.accuracy_drop * 100).toFixed(1)}%` : '—'}</div>
           <div style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 500 }}>
             vs training baseline
           </div>

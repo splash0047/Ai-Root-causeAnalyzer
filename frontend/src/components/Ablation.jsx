@@ -10,9 +10,7 @@ export default function Ablation() {
   async function runStudy() {
     setLoading(true); setError(null); setResult(null);
     try {
-      const res = await fetch('http://localhost:8000/ablation?n_samples=' + nSamples, { method: 'POST' });
-      if (!res.ok) throw new Error('Ablation failed');
-      setResult(await res.json());
+      setResult(await api.runAblation(nSamples));
     } catch (e) { setError(e.message); }
     setLoading(false);
   }
@@ -21,7 +19,7 @@ export default function Ablation() {
     <div className="animate-in">
       <div className="page-header">
         <h1 className="page-title">Ablation Study</h1>
-        <p className="page-subtitle">Prove the incremental value of each RCA component</p>
+        <p className="page-subtitle">Compare diagnostic stages on 12 synthetic injections; top-three feature hits are not field accuracy.</p>
       </div>
 
       {/* Controls */}
@@ -46,7 +44,7 @@ export default function Ablation() {
         <div className="cyber-card loading-overlay" style={{minHeight:300}}>
           <div className="spinner"></div>
           <span>Running 12 failure scenarios × 4 configurations...</span>
-          <span style={{fontSize:'0.8rem',color:'var(--text-muted)'}}>Drift → +SHAP → +Counterfactuals → Full Pipeline</span>
+          <span style={{fontSize:'0.8rem',color:'var(--text-muted)'}}>Integrity + drift → SHAP → model sensitivity → interactions</span>
         </div>
       )}
 
@@ -59,7 +57,7 @@ export default function Ablation() {
                 <div className="stat-label">{config.name}</div>
                 <div className={`stat-value ${['','green','amber',''][i]}`}>{(config.accuracy * 100).toFixed(0)}%</div>
                 <div style={{marginTop:8,fontSize:'0.8rem',color:'var(--text-muted)'}}>
-                  {config.correct}/{config.total} detected • {config.avg_time_ms}ms avg
+                  {config.correct}/{config.total} top-three hits • {config.avg_time_ms}ms engine time
                 </div>
               </div>
             ))}
@@ -67,7 +65,7 @@ export default function Ablation() {
 
           {/* Visual Bar Chart */}
           <div className="cyber-card" style={{padding:28,marginBottom:24}}>
-            <h3 style={{marginBottom:20,fontWeight:700, fontFamily: 'var(--font-title)'}}>📊 Accuracy Progression</h3>
+            <h3 style={{marginBottom:20,fontWeight:700, fontFamily: 'var(--font-title)'}}>📊 Synthetic Top-Three Hit Rate</h3>
             <div style={{display:'flex',flexDirection:'column',gap:16}}>
               {result.configs?.map((config, i) => (
                 <div key={i} style={{display:'flex',alignItems:'center',gap:16}}>
