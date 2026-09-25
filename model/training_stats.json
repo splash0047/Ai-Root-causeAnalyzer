@@ -12,8 +12,8 @@
   ],
   "sample_count": 4000,
   "default_rate": 0.1,
-  "accuracy": 0.906,
-  "f1_score": 0.2878787878787879,
+  "accuracy": 0.905,
+  "f1_score": 0.3356643356643357,
   "feature_stats": {
     "age": {
       "mean": 45.19325,

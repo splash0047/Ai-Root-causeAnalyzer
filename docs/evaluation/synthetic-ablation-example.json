@@ -1,0 +1,532 @@
+{
+  "scope": "Synthetic in-distribution injection; 12 expected feature/concept diagnoses; no control incidents",
+  "generated_at_utc": "2026-09-25T14:19:14.132253+00:00",
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "packages": {
+      "numpy": "2.5.3",
+      "pandas": "3.0.6",
+      "scikit-learn": "1.9.1",
+      "xgboost": "3.4.1",
+      "shap": "0.52.0"
+    }
+  },
+  "inputs": {
+    "n_samples_per_scenario": 50,
+    "model_sha256": "faa85be86c66219d293b6ae00eecd708128d5711a64a31fb04a8497c54352b05",
+    "baseline_sha256": "09fad4440a815ec99f0dbaf8c735ad747d5363cfe0ba67121306964d10bf5d79",
+    "training_stats_sha256": "acadd2a529a03dfc4b6049e33ca1e3779083396358b0ecae10079396c79ee4f0",
+    "generator_seed": 42,
+    "simulator_seed": 99
+  },
+  "result": {
+    "configs": [
+      {
+        "name": "Integrity + Drift",
+        "components": {
+          "use_shap": false,
+          "use_counterfactual": false,
+          "use_interactions": false
+        },
+        "accuracy": 0.8333,
+        "correct": 10,
+        "total": 12,
+        "avg_time_ms": 0.9,
+        "scenarios": [
+          {
+            "scenario": "noise:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "credit_score",
+            "hit": true,
+            "confidence": 0.268,
+            "time_ms": 5.1
+          },
+          {
+            "scenario": "noise:income",
+            "expected": "income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "income",
+            "hit": true,
+            "confidence": 0.2822,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "noise:debt_to_income",
+            "expected": "debt_to_income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.3098,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "drop:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "credit_score",
+            "hit": true,
+            "confidence": 0.3037,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "drop:loan_amount",
+            "expected": "loan_amount",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.3187,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "skew:income",
+            "expected": "income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "income",
+            "hit": true,
+            "confidence": 0.2565,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "skew:employment_years",
+            "expected": "employment_years",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "employment_years",
+            "hit": true,
+            "confidence": 0.2415,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "interaction:credit_score",
+            "expected": "credit_score",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "income",
+            "hit": true,
+            "confidence": 0.3314,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "interaction:debt_to_income",
+            "expected": "debt_to_income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.3054,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "concept:all",
+            "expected": "concept",
+            "detected": "Concept Drift or Model Overfitting",
+            "top_feature": "none",
+            "hit": true,
+            "confidence": 0.2437,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "missing:credit_score",
+            "expected": "credit_score",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "none",
+            "hit": false,
+            "confidence": 0.0,
+            "time_ms": 0.5
+          },
+          {
+            "scenario": "missing:income",
+            "expected": "income",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "none",
+            "hit": false,
+            "confidence": 0.0488,
+            "time_ms": 0.5
+          }
+        ]
+      },
+      {
+        "name": "+ SHAP",
+        "components": {
+          "use_shap": true,
+          "use_counterfactual": false,
+          "use_interactions": false
+        },
+        "accuracy": 0.75,
+        "correct": 9,
+        "total": 12,
+        "avg_time_ms": 29.7,
+        "scenarios": [
+          {
+            "scenario": "noise:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": false,
+            "confidence": 0.436,
+            "time_ms": 22.6
+          },
+          {
+            "scenario": "noise:income",
+            "expected": "income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.4694,
+            "time_ms": 20.2
+          },
+          {
+            "scenario": "noise:debt_to_income",
+            "expected": "debt_to_income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.5142,
+            "time_ms": 20.0
+          },
+          {
+            "scenario": "drop:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.4693,
+            "time_ms": 20.1
+          },
+          {
+            "scenario": "drop:loan_amount",
+            "expected": "loan_amount",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.6187,
+            "time_ms": 19.8
+          },
+          {
+            "scenario": "skew:income",
+            "expected": "income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "income",
+            "hit": true,
+            "confidence": 0.5326,
+            "time_ms": 20.8
+          },
+          {
+            "scenario": "skew:employment_years",
+            "expected": "employment_years",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "employment_years",
+            "hit": true,
+            "confidence": 0.4322,
+            "time_ms": 97.8
+          },
+          {
+            "scenario": "interaction:credit_score",
+            "expected": "credit_score",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "income",
+            "hit": false,
+            "confidence": 0.6314,
+            "time_ms": 24.6
+          },
+          {
+            "scenario": "interaction:debt_to_income",
+            "expected": "debt_to_income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.5631,
+            "time_ms": 44.6
+          },
+          {
+            "scenario": "concept:all",
+            "expected": "concept",
+            "detected": "Concept Drift or Model Overfitting",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.4128,
+            "time_ms": 23.3
+          },
+          {
+            "scenario": "missing:credit_score",
+            "expected": "credit_score",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "debt_to_income",
+            "hit": false,
+            "confidence": 0.1697,
+            "time_ms": 20.6
+          },
+          {
+            "scenario": "missing:income",
+            "expected": "income",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.226,
+            "time_ms": 21.6
+          }
+        ]
+      },
+      {
+        "name": "+ Model Sensitivity",
+        "components": {
+          "use_shap": true,
+          "use_counterfactual": true,
+          "use_interactions": false
+        },
+        "accuracy": 0.75,
+        "correct": 9,
+        "total": 12,
+        "avg_time_ms": 44.2,
+        "scenarios": [
+          {
+            "scenario": "noise:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": false,
+            "confidence": 0.436,
+            "time_ms": 24.6
+          },
+          {
+            "scenario": "noise:income",
+            "expected": "income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.4694,
+            "time_ms": 28.1
+          },
+          {
+            "scenario": "noise:debt_to_income",
+            "expected": "debt_to_income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.5142,
+            "time_ms": 158.7
+          },
+          {
+            "scenario": "drop:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.4693,
+            "time_ms": 34.4
+          },
+          {
+            "scenario": "drop:loan_amount",
+            "expected": "loan_amount",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.6187,
+            "time_ms": 24.5
+          },
+          {
+            "scenario": "skew:income",
+            "expected": "income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "income",
+            "hit": true,
+            "confidence": 0.5326,
+            "time_ms": 29.6
+          },
+          {
+            "scenario": "skew:employment_years",
+            "expected": "employment_years",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "employment_years",
+            "hit": true,
+            "confidence": 0.4322,
+            "time_ms": 23.9
+          },
+          {
+            "scenario": "interaction:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift Associated With Model Failure",
+            "top_feature": "income",
+            "hit": false,
+            "confidence": 0.6314,
+            "time_ms": 28.7
+          },
+          {
+            "scenario": "interaction:debt_to_income",
+            "expected": "debt_to_income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.5631,
+            "time_ms": 28.5
+          },
+          {
+            "scenario": "concept:all",
+            "expected": "concept",
+            "detected": "Concept Drift or Model Overfitting",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.4128,
+            "time_ms": 29.0
+          },
+          {
+            "scenario": "missing:credit_score",
+            "expected": "credit_score",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "loan_amount",
+            "hit": false,
+            "confidence": 0.1697,
+            "time_ms": 29.4
+          },
+          {
+            "scenario": "missing:income",
+            "expected": "income",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "employment_years",
+            "hit": true,
+            "confidence": 0.226,
+            "time_ms": 91.1
+          }
+        ]
+      },
+      {
+        "name": "+ Interactions",
+        "components": {
+          "use_shap": true,
+          "use_counterfactual": true,
+          "use_interactions": true
+        },
+        "accuracy": 0.75,
+        "correct": 9,
+        "total": 12,
+        "avg_time_ms": 40.5,
+        "scenarios": [
+          {
+            "scenario": "noise:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": false,
+            "confidence": 0.436,
+            "time_ms": 35.7
+          },
+          {
+            "scenario": "noise:income",
+            "expected": "income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.4694,
+            "time_ms": 38.7
+          },
+          {
+            "scenario": "noise:debt_to_income",
+            "expected": "debt_to_income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.5142,
+            "time_ms": 37.4
+          },
+          {
+            "scenario": "drop:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.4693,
+            "time_ms": 37.4
+          },
+          {
+            "scenario": "drop:loan_amount",
+            "expected": "loan_amount",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.6187,
+            "time_ms": 22.3
+          },
+          {
+            "scenario": "skew:income",
+            "expected": "income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "income",
+            "hit": true,
+            "confidence": 0.5326,
+            "time_ms": 35.6
+          },
+          {
+            "scenario": "skew:employment_years",
+            "expected": "employment_years",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "employment_years",
+            "hit": true,
+            "confidence": 0.4322,
+            "time_ms": 21.3
+          },
+          {
+            "scenario": "interaction:credit_score",
+            "expected": "credit_score",
+            "detected": "Data Drift Associated With Model Failure",
+            "top_feature": "income",
+            "hit": false,
+            "confidence": 0.6314,
+            "time_ms": 104.1
+          },
+          {
+            "scenario": "interaction:debt_to_income",
+            "expected": "debt_to_income",
+            "detected": "Data Drift (No Performance Impact Yet)",
+            "top_feature": "debt_to_income",
+            "hit": true,
+            "confidence": 0.5631,
+            "time_ms": 36.7
+          },
+          {
+            "scenario": "concept:all",
+            "expected": "concept",
+            "detected": "Concept Drift or Model Overfitting",
+            "top_feature": "loan_amount",
+            "hit": true,
+            "confidence": 0.4128,
+            "time_ms": 37.6
+          },
+          {
+            "scenario": "missing:credit_score",
+            "expected": "credit_score",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "loan_amount",
+            "hit": false,
+            "confidence": 0.1697,
+            "time_ms": 41.5
+          },
+          {
+            "scenario": "missing:income",
+            "expected": "income",
+            "detected": "No Significant Issue Detected",
+            "top_feature": "employment_years",
+            "hit": true,
+            "confidence": 0.226,
+            "time_ms": 38.0
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "best_config": "Integrity + Drift",
+      "accuracy_progression": [
+        0.8333,
+        0.75,
+        0.75,
+        0.75
+      ],
+      "avg_time_progression": [
+        0.9,
+        29.7,
+        44.2,
+        40.5
+      ]
+    },
+    "scenarios": 12,
+    "scope": "synthetic injections on the training generator's data; top-three feature hit rate"
+  }
+}

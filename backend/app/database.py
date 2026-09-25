@@ -18,6 +18,8 @@ if _db_url.startswith("postgresql"):
             conn.execute(__import__('sqlalchemy').text("SELECT 1"))
         engine = create_engine(_db_url, pool_pre_ping=True, pool_size=10)
     except Exception:
+        if settings.APP_ENV == "production":
+            raise RuntimeError("Configured Postgres unavailable in production")
         _sqlite_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "rca_local.db")
         _db_url = f"sqlite:///{_sqlite_path}"
         engine = create_engine(_db_url, connect_args={"check_same_thread": False})

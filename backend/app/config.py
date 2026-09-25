@@ -15,11 +15,12 @@ load_dotenv(dotenv_path=_env_path if _env_path.exists() else None)
 
 
 class Settings:
+    CORS_ORIGINS: list[str] = [origin.strip() for origin in os.getenv(
+        "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
+    ).split(",") if origin.strip()]
+    APP_ENV: str = os.getenv("APP_ENV", "development")
     # --- Database ---
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://rca_user:rca_secret_2024@localhost:5432/rca_db")
-
-    # --- Redis ---
-    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./rca_local.db")
 
     # --- LLM Providers ---
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")

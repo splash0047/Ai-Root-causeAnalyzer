@@ -85,8 +85,8 @@ class LLMReasoner:
         # Format ranked features
         features_text = ""
         for i, feat in enumerate(ranked_features[:5], 1):
-            causal = " ✓ CAUSALLY CONFIRMED" if feat.get("causality_confirmed") else ""
-            features_text += f"  {i}. {feat['feature']} (impact: {feat['impact']:.4f}, source: {feat['source']}{causal})\n"
+            sensitivity = " (model sensitivity detected)" if feat.get("model_sensitivity_detected") else ""
+            features_text += f"  {i}. {feat['feature']} (impact: {feat['impact']:.4f}, source: {feat['source']}{sensitivity})\n"
 
         # Format reasoning chain
         chain_text = ""
@@ -125,7 +125,7 @@ DATA INTEGRITY ISSUES: {'; '.join(integrity_issues) if integrity_issues else 'No
 --- RESPONSE FORMAT ---
 Respond in EXACTLY this JSON format (no markdown, no code blocks):
 {{
-  "explanation": "<2-3 paragraph technical explanation of the root cause, referencing specific features and their causal relationships>",
+   "explanation": "<2-3 paragraph technical explanation of the diagnostic evidence; do not claim a causal effect from feature substitution>",
   "suggested_fix": "<Numbered list of concrete remediation steps>",
   "confidence_reasoning": "<1 paragraph explaining the confidence score based on signal convergence>"
 }}"""

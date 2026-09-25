@@ -61,11 +61,13 @@ export const api = {
       }),
     }),
 
-  simulateFix: (rcaId, fixType, targetFeature) =>
+  simulateFix: (records, actuals, fixType, targetFeature) =>
     request('/simulate/fix', {
       method: 'POST',
-      body: JSON.stringify({ rca_id: rcaId, fix_type: fixType, target_feature: targetFeature }),
+      body: JSON.stringify({ records, actuals, fix_type: fixType, target_feature: targetFeature }),
     }),
+
+  runAblation: (nSamples) => request(`/ablation?n_samples=${nSamples}`, { method: 'POST' }),
 
   runBenchmarkDemo: () => request('/benchmark/demo', { method: 'POST' }),
 

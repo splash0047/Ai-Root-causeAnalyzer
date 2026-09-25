@@ -12,3 +12,6 @@ venv/
 .venv/
 .env
 rca_local.db
+backend/data/
+model/*.joblib
+model/*.csv
