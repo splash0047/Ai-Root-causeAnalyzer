@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AI Root Cause Analyzer architecture",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/splash0047/Ai-Root-causeAnalyzer",
+      "provider": "github",
+      "revision": "ff78d805a2cc9075b924350b581c090857458228"
+    }
+  },
+  "components": [
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "React dashboard",
+      "pos": [
+        65,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "frontend/src/App.jsx"
+        }
+      ],
+      "sublabel": "simulate / diagnose"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI",
+      "pos": [
+        340,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "backend/app/main.py"
+        }
+      ],
+      "sublabel": "/rca and evaluation"
+    },
+    {
+      "id": "engine",
+      "type": "backend",
+      "label": "RCA engine",
+      "pos": [
+        650,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "backend/app/engines/rca_engine.py"
+        }
+      ],
+      "sublabel": "drift + integrity + SHAP"
+    },
+    {
+      "id": "model",
+      "type": "backend",
+      "label": "XGBoost baseline",
+      "pos": [
+        945,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "model/train_baseline.py"
+        }
+      ],
+      "sublabel": "synthetic training data"
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "SQL log",
+      "pos": [
+        650,
+        510
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "backend/app/database.py"
+        }
+      ],
+      "sublabel": "SQLite default"
+    },
+    {
+      "id": "memory",
+      "type": "external",
+      "label": "Pinecone",
+      "pos": [
+        945,
+        100
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "backend/app/engines/vector_memory.py"
+        }
+      ],
+      "sublabel": "optional case memory"
+    },
+    {
+      "id": "llm",
+      "type": "external",
+      "label": "LLM providers",
+      "pos": [
+        945,
+        510
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "backend/app/engines/llm_reasoner.py"
+        }
+      ],
+      "sublabel": "optional explanations"
+    }
+  ],
+  "connections": [
+    {
+      "from": "ui",
+      "to": "api",
+      "label": "HTTP"
+    },
+    {
+      "from": "api",
+      "to": "engine",
+      "label": "batch analysis"
+    },
+    {
+      "from": "engine",
+      "to": "model",
+      "label": "predict / sensitivity"
+    },
+    {
+      "from": "api",
+      "to": "db",
+      "label": "diagnosis history"
+    },
+    {
+      "from": "engine",
+      "to": "memory",
+      "label": "optional lookup",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "from": "engine",
+      "to": "llm",
+      "label": "optional explanation"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Runtime path",
+      "items": [
+        "The classifier and injected failures are synthetic"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Implementation note",
+      "items": [
+        "Optional providers can be disabled for the local demo"
+      ]
+    }
+  ]
+}
