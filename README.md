@@ -4,6 +4,14 @@ A research prototype for investigating failures of a **synthetic loan default cl
 
 **Status:** portfolio demo. The training data and injected failures are synthetic. Diagnostic scores have not been calibrated against independent incident labels. This is not a production monitoring or lending decision system.
 
+## Architecture
+
+![Current system architecture](docs/architecture/architecture.svg)
+
+[Download the interactive Archify diagram (open locally)](docs/architecture/architecture.html) · [View the source specification](docs/architecture/architecture.json)
+
+This diagram maps the components present in the repository. Optional integrations and implementation limits are called out in the diagram.
+
 ## What is implemented
 
 | Component | Behavior | Boundary |
